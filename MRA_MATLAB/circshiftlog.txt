@@ -1,0 +1,193 @@
+K = 2, sigma = 0.1 
+Max iteration count reached; options.maxiter = 200.
+Total time is 0.826093 [s] (excludes statsfun)
+K = 2, sigma = 0.2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.257805 [s] (excludes statsfun)
+K = 2, sigma = 0.3 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.326332 [s] (excludes statsfun)
+K = 2, sigma = 0.4 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.516324 [s] (excludes statsfun)
+K = 2, sigma = 0.5 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.434534 [s] (excludes statsfun)
+K = 2, sigma = 0.6 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.298674 [s] (excludes statsfun)
+K = 2, sigma = 0.7 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.201596 [s] (excludes statsfun)
+K = 2, sigma = 0.8 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.285838 [s] (excludes statsfun)
+K = 2, sigma = 0.9 
+Max iteration count reached; options.maxiter = 200.
+Total time is 0.499859 [s] (excludes statsfun)
+K = 2, sigma = 1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.262260 [s] (excludes statsfun)
+K = 2, sigma = 1.1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.319198 [s] (excludes statsfun)
+K = 2, sigma = 1.2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.536469 [s] (excludes statsfun)
+K = 2, sigma = 1.3 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.395811 [s] (excludes statsfun)
+K = 2, sigma = 1.4 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.299311 [s] (excludes statsfun)
+K = 2, sigma = 1.5 
+Max iteration count reached; options.maxiter = 200.
+Total time is 0.536398 [s] (excludes statsfun)
+K = 2, sigma = 1.6 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.648285 [s] (excludes statsfun)
+K = 2, sigma = 1.7 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.819704 [s] (excludes statsfun)
+K = 2, sigma = 1.8 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.339714 [s] (excludes statsfun)
+K = 2, sigma = 1.9 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.802877 [s] (excludes statsfun)
+K = 2, sigma = 2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.450719 [s] (excludes statsfun)
+K = 3, sigma = 0.1 
+Max iteration count reached; options.maxiter = 200.
+Total time is 0.939647 [s] (excludes statsfun)
+K = 3, sigma = 0.2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.314718 [s] (excludes statsfun)
+K = 3, sigma = 0.3 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.145655 [s] (excludes statsfun)
+K = 3, sigma = 0.4 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.112648 [s] (excludes statsfun)
+K = 3, sigma = 0.5 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.466333 [s] (excludes statsfun)
+K = 3, sigma = 0.6 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.640363 [s] (excludes statsfun)
+K = 3, sigma = 0.7 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 0.799884 [s] (excludes statsfun)
+K = 3, sigma = 0.8 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.017479 [s] (excludes statsfun)
+K = 3, sigma = 0.9 
+Max iteration count reached; options.maxiter = 200.
+Total time is 0.838653 [s] (excludes statsfun)
+K = 3, sigma = 1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.364273 [s] (excludes statsfun)
+K = 3, sigma = 1.1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.400235 [s] (excludes statsfun)
+K = 3, sigma = 1.2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.220910 [s] (excludes statsfun)
+K = 3, sigma = 1.3 
+Max iteration count reached; options.maxiter = 200.
+Total time is 0.851637 [s] (excludes statsfun)
+K = 3, sigma = 1.4 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.212968 [s] (excludes statsfun)
+K = 3, sigma = 1.5 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.382911 [s] (excludes statsfun)
+K = 3, sigma = 1.6 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.134271 [s] (excludes statsfun)
+K = 3, sigma = 1.7 
+Max iteration count reached; options.maxiter = 200.
+Total time is 1.216995 [s] (excludes statsfun)
+K = 3, sigma = 1.8 
+Max iteration count reached; options.maxiter = 200.
+Total time is 14.571219 [s] (excludes statsfun)
+K = 3, sigma = 1.9 
+Max iteration count reached; options.maxiter = 200.
+Total time is 13.139380 [s] (excludes statsfun)
+K = 3, sigma = 2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 14.609112 [s] (excludes statsfun)
+K = 4, sigma = 0.1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.614197 [s] (excludes statsfun)
+K = 4, sigma = 0.2 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.829431 [s] (excludes statsfun)
+K = 4, sigma = 0.3 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.397641 [s] (excludes statsfun)
+K = 4, sigma = 0.4 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.708106 [s] (excludes statsfun)
+K = 4, sigma = 0.5 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.309720 [s] (excludes statsfun)
+K = 4, sigma = 0.6 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.882403 [s] (excludes statsfun)
+K = 4, sigma = 0.7 
+ +++ Detected many consecutive TR+ (radius increases).
+ +++ Consider multiplying options.Delta_bar by 10.
+ +++ Current values: options.Delta_bar = 14.2291 and options.Delta0 = 1.77864.
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 4.851004 [s] (excludes statsfun)
+K = 4, sigma = 0.8 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.154833 [s] (excludes statsfun)
+K = 4, sigma = 0.9 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.125357 [s] (excludes statsfun)
+K = 4, sigma = 1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 1.752865 [s] (excludes statsfun)
+K = 4, sigma = 1.1 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 20.275151 [s] (excludes statsfun)
+K = 4, sigma = 1.2 
+ +++ Detected many consecutive TR+ (radius increases).
+ +++ Consider multiplying options.Delta_bar by 10.
+ +++ Current values: options.Delta_bar = 14.2291 and options.Delta0 = 1.77864.
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 2.079938 [s] (excludes statsfun)
+K = 4, sigma = 1.3 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 3.394721 [s] (excludes statsfun)
+K = 4, sigma = 1.4 
+Max iteration count reached; options.maxiter = 200.
+Total time is 23.376457 [s] (excludes statsfun)
+K = 4, sigma = 1.5 
+Max iteration count reached; options.maxiter = 200.
+Total time is 18.882918 [s] (excludes statsfun)
+K = 4, sigma = 1.6 
+Gradient norm tolerance reached; options.tolgradnorm = 1e-07.
+Total time is 6.769159 [s] (excludes statsfun)
+K = 4, sigma = 1.7 
+Max iteration count reached; options.maxiter = 200.
+Total time is 1.990113 [s] (excludes statsfun)
+K = 4, sigma = 1.8 
+Max iteration count reached; options.maxiter = 200.
+Total time is 19.012194 [s] (excludes statsfun)
+K = 4, sigma = 1.9 
+Max iteration count reached; options.maxiter = 200.
+Total time is 8.511663 [s] (excludes statsfun)
+K = 4, sigma = 2 
+Max iteration count reached; options.maxiter = 200.
+Total time is 21.549885 [s] (excludes statsfun)
+K = 2, sigma = 0.1 
+if system_dependent('IsDebugMode')==1, dbstep in; end
+if system_dependent('IsDebugMode')==1, dbstep in; end
+if system_dependent('IsDebugMode')==1, dbstep in; end
+if system_dependent('IsDebugMode')==1, dbstep in; end
+if system_dependent('IsDebugMode')==1, dbquit; end
+main

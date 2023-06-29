@@ -1,0 +1,58 @@
+function [x_true, normalized_index] = generate_signal(K,L,signal)
+
+% Default values
+    arguments
+        K double {mustBePositive} = 2;
+        L double {mustBeNonnegative} = 50;
+        signal string = 'logreturns';
+    end
+    
+% Ground truth signals
+    if signal == 'gaussian'
+        x_true = randn(L, K);
+        x_true = normalize(x_true);
+    
+    elseif signal == 'sine'
+        x_true = zeros(L,K);
+        for k = 1:K
+            x_true(:,k) = normalize(transpose(sin(linspace(0,2*k*pi,L))));
+        end
+
+    elseif signal == 'nonPeriodicSine'
+        x_true = zeros(L,K);
+        start = round(L/4);
+        length  = round(L/2);
+        for k = 1:K
+            x_true(start:start + length - 1,k) = normalize(transpose(sin(2*pi*linspace(k/K,1+k/K,length))));
+        end
+
+    elseif signal == 'OPCL'
+        data_table = readtable('../data/OPCLreturns_K10_N100.csv');
+        data_table(:,1)=[];
+        row = randi(height(data_table)-K+1);
+        start_col = randi(width(data_table)-L+1);
+        x_true = transpose(table2array(data_table(row:row+K-1,start_col:start_col+L-1)));
+        x_true = normalize(x_true);
+     
+    elseif signal == 'pvCLCL'
+        data_table = readtable('../data/pvCLCL_20000103_20201231.csv');
+        row = randi(height(data_table)-K+1);
+        start_col = randi(width(data_table)-L)+1;
+        % extract the index series
+        SPY = data_table(strcmp(data_table.ticker,'SPY'),start_col:start_col+L-1);
+        x_true = transpose(table2array(data_table(row:row+K-1,start_col:start_col+L-1)));
+        x_true = normalize(x_true);
+        normalized_index = normalize(transpose(table2array(SPY)));
+
+    elseif signal == 'mixed'
+        x1 = normalize(randn(L,1));
+        x2 = normalize(transpose(sin(linspace(0,2*pi,L))));
+
+    end 
+
+
+    
+    % Sine waves
+    % for k = 1:K
+    %     x_true(:,k) = transpose(sin(linspace(0,k*pi,L)));
+    % end
