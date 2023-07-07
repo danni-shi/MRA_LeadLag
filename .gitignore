@@ -3,7 +3,8 @@
 plots/
 *.csv
 .vscode/
-data*/
+data*/*
+!data/pvCLCL_results/*
 venv*/
 private/
 results/
