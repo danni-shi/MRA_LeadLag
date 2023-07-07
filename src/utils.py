@@ -454,7 +454,15 @@ def assign_classes(observation, X_est):
         dist.append(corrcoef[lag])
     return np.argmax(dist)
 
+def normalize_by_column(data):
+    mean = np.mean(data, axis=0)
+    std = np.std(data, axis=0)
+    return (data - mean) / std
 
+
+def lag_mat_to_vec_SVD(lag_vec):
+
+            lag_vector = np.array(np.round(r), dtype=int)
 # def alignment_residual(x1, x2, return_lag = False):
 #     """align the vector x1 after circularly shifting it such that it is optimally aligned with x2 in 2-norm. Calculate the 
 

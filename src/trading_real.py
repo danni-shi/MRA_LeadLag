@@ -88,10 +88,7 @@ def strategy_lag_groups(returns, trading_start, trading_end,
     market_index = market_index.iloc[trading_start - days_advanced:trading_end]
     return_types = ['raw returns', 'mkt excess returns', 'leader excess returns', 'leader raw returns', 'leader mkt excess returns']
     results = {return_type: {} for return_type in return_types}
-    PnL = {}
     signals = {}
-    PnL_excess_mkt = {}
-    PnL_excess_leader = {}
     sub_returns = np.array(sub_returns)
     for l1 in lags:
         for l2 in lags:
@@ -101,9 +98,6 @@ def strategy_lag_groups(returns, trading_start, trading_end,
                 leader_weights = weights_by_inverse_vol(returns.iloc[leaders,:trading_start],
                                                         'std',
                                                         window_width=20)
-                # lagger_weights = weights_by_inverse_vol(returns.iloc[laggers, :trading_start],
-                #                                         'variance',
-                #                                         window_width=20)
                 lagger_weights = None
                 lag = l2 - l1
                 pnl, signal, pnl_leader = PnL_two_groups_real(sub_returns, leaders, laggers, lag,
@@ -305,7 +299,7 @@ def strategy_plain(returns, lag_matrix, shifts, watch_period=1, hold_period=1, l
 
 
 def strategy_het_real(df_returns, trading_start, trading_end,
-                      lag_matrix, classes, watch_period=1,
+                      lag_vec, classes, watch_period=1,
                       hold_period=1, class_threshold=None,
                       assumed_max_lag=5, hedge=False,
                       ):
@@ -326,23 +320,20 @@ def strategy_het_real(df_returns, trading_start, trading_end,
         # count number of samples in class c
         count = np.count_nonzero(classes == c)
         if count > class_threshold:  # ignore classes with size below a certain threshold
-            sub_lag_matrix = lag_matrix[classes == c][:, classes == c]
-            lag_vector = lag_mat_to_vec(sub_lag_matrix)
-            # pi, r, _ = alignment.SVD_NRS(lag_matrix)
-            # lag_vector = np.array(np.round(r), dtype=int)
-            lags, counts = np.unique(lag_vector, return_counts=True)
-            min_group_size = 0.1 * int(len(sub_lag_matrix) / assumed_max_lag + 1)
+            sub_lag_vector = lag_vec[classes == c]
+            lags, counts = np.unique(sub_lag_vector, return_counts=True)
+            min_group_size = 0.1 * int(len(sub_lag_vector) / assumed_max_lag + 1)
             lags = lags[counts >= min_group_size]
 
             if len(lags) > 1:
                 min_lag = np.min(lags)
                 lags -= min_lag
-                lag_vector -= min_lag
+                sub_lag_vector -= min_lag
                 days_advanced = min(max(lags) + watch_period - 1, trading_start)
                 sub_returns = df_returns.iloc[classes == c]
                 results = strategy_lag_groups(
                     sub_returns, trading_start, trading_end,
-                    days_advanced, lag_vector, lags,
+                    days_advanced, sub_lag_vector, lags,
                     watch_period, hold_period,
                     market_index=market_index, hedge=hedge)
 
@@ -375,12 +366,12 @@ def strategy_het_real(df_returns, trading_start, trading_end,
     return results_dict
 
 def trading_single(df_returns,
-                   lag_matrices, estimates, k, sigma,
+                   lag_vectors, estimates, k, sigma,
                    model, trading_period_start, trading_period_end,
                    assumed_max_lag, hedge,  **trading_kwargs):
 
     # load estimates of lags
-    lag_mat = lag_matrices[f'K={k}'][f'sigma={sigma:.2g}'][model]
+    lag_vec = lag_vectors[f'K={k}'][f'sigma={sigma:.2g}'][model]['row mean']
 
     if model == 'het':
         classes = estimates[f'K={k}'][f'sigma={sigma:.2g}']['classes']['het']
@@ -389,7 +380,7 @@ def trading_single(df_returns,
     trading_results = strategy_het_real(
         df_returns,
         trading_period_start, trading_period_end,
-        lag_mat, classes, assumed_max_lag=assumed_max_lag,
+        lag_vec, classes, assumed_max_lag=assumed_max_lag,
         hedge=hedge, **trading_kwargs)
 
     return trading_results
@@ -409,8 +400,8 @@ def trading_real_data_multiple(data_path, prediction_path,
     trading = {f'K={k}': {f'sigma={sigma:.2g}': {} for sigma in sigma_range} for k in K_range}
     with open(prediction_path + f'/signal_estimates/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
         estimates = pickle.load(f)
-    with open(prediction_path + f'/lag_matrices/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
-        lag_matrices = pickle.load(f)
+    with open(prediction_path + f'/lag_vectors/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
+        lag_vectors = pickle.load(f)
 
     # load returns data
     df_returns = pd.read_csv(data_path, index_col=0)
@@ -433,7 +424,7 @@ def trading_real_data_multiple(data_path, prediction_path,
         for sigma in sigma_range:
             for model in models:
                 trading[f'K={k}'][f'sigma={sigma:.2g}'][model] = \
-                trading_single(df_returns, lag_matrices, estimates,
+                trading_single(df_returns, lag_vectors, estimates,
                                k, sigma, model,
                                trading_period_start, trading_period_end,
                                assumed_max_lag, hedge, **trading_kwargs)
@@ -463,8 +454,8 @@ def trading_real_data(data_path, prediction_path, k, sigma,
     # load lag prediction
     with open(prediction_path+f'/signal_estimates/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
         estimates = pickle.load(f)
-    with open(prediction_path+f'/lag_matrices/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
-        lag_matrices = pickle.load(f)
+    with open(prediction_path+f'/lag_vectors/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
+        lag_vectors = pickle.load(f)
 
     # load returns data
     df_returns = pd.read_csv(data_path, index_col=0)
@@ -477,7 +468,7 @@ def trading_real_data(data_path, prediction_path, k, sigma,
         trading_period_start = train_period_start
         trading_period_end = train_period_end
 
-    trading = trading_single(df_returns, lag_matrices, estimates,
+    trading = trading_single(df_returns, lag_vectors, estimates,
                        k, sigma, model,
                        trading_period_start, trading_period_end,
                        assumed_max_lag, hedge, **trading_kwargs)
@@ -502,8 +493,8 @@ def best_K_and_sigma(df_returns, prediction_path,
     # load lag prediction
     with open(prediction_path+f'/signal_estimates/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
         estimates = pickle.load(f)
-    with open(prediction_path+f'/lag_matrices/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
-        lag_matrices = pickle.load(f)
+    with open(prediction_path+f'/lag_vectors/start{train_period_start}end{train_period_end}.pkl', 'rb') as f:
+        lag_vectors = pickle.load(f)
 
     trading_period_start = train_period_start
     trading_period_end = train_period_end
@@ -515,7 +506,7 @@ def best_K_and_sigma(df_returns, prediction_path,
         for j, sigma in enumerate(sigma_range):
             # load estimates of lags
             trading_results = trading_single(df_returns,
-                                             lag_matrices, estimates,
+                                             lag_vectors, estimates,
                            k, sigma, model,
                            trading_period_start, trading_period_end,
                            assumed_max_lag, hedge=True)
@@ -559,57 +550,6 @@ def best_K_and_sigma_for_all(df_returns, prediction_path,
     start_end_indices = [(start_indices[t], end_indices[t]) for t in range(len(start_indices))]
     df_results = pd.DataFrame(result, index=start_end_indices, columns=models)
     return df_results
-
-def concat_PnL_real(K, sigma, model,
-                    start, end, signal_length,
-                    trading_period,
-                    return_excess=True,
-                    return_SR=True):
-    """
-    concatenate PnL simulation on out-of-sample data from multiple retrained experiments
-    Args:
-        train_start:
-        train_end:
-        retrain_period:
-        return_SR:
-
-    Returns: PnL and SR (optional)
-
-    """
-
-    start_indices = range(start, end, retrain_period)
-
-    return_types = ['raw returns']
-    if return_excess:
-        return_types.append('mkt excess returns')
-    PnL_list_dict = {type: [] for type in return_types}
-
-    for train_start in start_indices:
-        train_end = train_start + signal_length
-        file_name = f'start{train_start}end{train_end}trade{trading_period}excess'
-        folder_name = 'PnL_real_excess'
-        with open(f'../results/{folder_name}/{file_name}.pkl', 'rb') as f:
-            trading = pickle.load(f)
-        with open(f'../results/PnL_real/{file_name}.pkl', 'rb') as f:
-            trading_test = pickle.load(f)
-
-        for return_type in return_types:
-            try:
-                pnl = trading[f'K={K}'][f'sigma={sigma:.2g}'][model]['portfolio average'][return_type]['PnL']['average']
-                assert len(pnl) == trading_period
-            except:
-                pnl = np.empty((trading_period))
-                pnl[:] = np.nan
-
-            PnL_list_dict[return_type].append(pnl)
-
-    PnL = {return_type: np.concatenate(PnL_list_dict[return_type]) for return_type in return_types}
-
-    if return_SR:
-        SR = {type: annualized_sharpe_ratio(returns[~np.isnan(returns)]) for type, returns in PnL.items()}
-        return PnL, SR
-    else:
-        return PnL
 
 def concat_PnL_real2(model, prediction_path, folder_name,
                     start, end, signal_length,
@@ -666,59 +606,59 @@ def string_to_int(string):
 if __name__ == '__main__':
     warnings.filterwarnings(action='ignore', message='Mean of empty slice')
     # Use the relevant data and lag prediction for different experiment settings
-    data_path = '../../data/pvCLCL_clean.csv'
+    data_path = '../data/pvCLCL_clean_winsorized.csv'
     df_returns = pd.read_csv(data_path, index_col=0)  # data
-    prediction_path = '../results/normalized_real'
+    prediction_path = '../results/real/2023-07-04-01h04min_clustering_full'
     PnL_folder_name = 'PnL_real_single_weighted'
     # range of K and sigma we run grid search on
     K_range = [1, 2, 3]
     sigma_range = np.arange(0.2, 2.1, 0.2)
     # start, ending, training data length, period of retrain
     start = 5;
-    end = 500
+    end = 1000
     retrain_period = 10
     signal_length = 50
     start_indices = range(start, end, retrain_period)
     models = ['pairwise', 'sync', 'spc-homo', 'het']
     # grid search on K and sigma for all models based on in-sample performance
-    df_results = best_K_and_sigma_for_all(df_returns,
-                                          prediction_path,
-                             K_range, sigma_range,
-                             models,
-                             start_indices, signal_length,
-                                          assumed_max_lag=2,
-                             criterion='raw returns')
-
-    folder_path = prediction_path + '/' + PnL_folder_name + '/'
-    # Check if the folder exists
-    if not os.path.exists(folder_path):
-        # Create the folder
-        os.makedirs(folder_path)
-    best_K_sigma_path = folder_path + 'best_k_sigma.csv'
-    df_results.to_csv(best_K_sigma_path)
-    df_results = pd.read_csv(best_K_sigma_path, index_col=0).applymap(eval)
-
-    # ###--------------------- Trading by sliding window ----------------------------###
-    for row_num, index in tqdm(enumerate(df_results.index)):
-        train_period_start, train_period_end = string_to_int(index)
-        #train_period_start, train_period_end = index
-        trading_results_models = {}
-        for col_num, model in enumerate(df_results.columns):
-            K, sigma = df_results.iloc[row_num, col_num]
-
-            trading = trading_real_data(data_path, prediction_path, K, sigma, model,
-                              train_period_start=train_period_start,
-                              train_period_end=train_period_start + signal_length,
-                              out_of_sample=True,
-                              trading_period=retrain_period,
-                              assumed_max_lag=2,
-                              hedge=True)
-            trading_results_models[model] = trading
-
-        file_name = f'start{train_period_start}end{train_period_end}trade{retrain_period}'
-
-        with open(folder_path + file_name + '.pkl', 'wb') as f:
-            pickle.dump(trading_results_models, f)
+    # df_results = best_K_and_sigma_for_all(df_returns,
+    #                                       prediction_path,
+    #                          K_range, sigma_range,
+    #                          models,
+    #                          start_indices, signal_length,
+    #                                       assumed_max_lag=2,
+    #                          criterion='raw returns')
+    #
+    # folder_path = prediction_path + '/' + PnL_folder_name + '/'
+    # # Check if the folder exists
+    # if not os.path.exists(folder_path):
+    #     # Create the folder
+    #     os.makedirs(folder_path)
+    # best_K_sigma_path = folder_path + 'best_k_sigma.csv'
+    # df_results.to_csv(best_K_sigma_path)
+    # df_results = pd.read_csv(best_K_sigma_path, index_col=0).applymap(eval)
+    #
+    # # ###--------------------- Trading by sliding window ----------------------------###
+    # for row_num, index in tqdm(enumerate(df_results.index)):
+    #     train_period_start, train_period_end = string_to_int(index)
+    #     #train_period_start, train_period_end = index
+    #     trading_results_models = {}
+    #     for col_num, model in enumerate(df_results.columns):
+    #         K, sigma = df_results.iloc[row_num, col_num]
+    #
+    #         trading = trading_real_data(data_path, prediction_path, K, sigma, model,
+    #                           train_period_start=train_period_start,
+    #                           train_period_end=train_period_start + signal_length,
+    #                           out_of_sample=True,
+    #                           trading_period=retrain_period,
+    #                           assumed_max_lag=2,
+    #                           hedge=True)
+    #         trading_results_models[model] = trading
+    #
+    #     file_name = f'start{train_period_start}end{train_period_end}trade{retrain_period}'
+    #
+    #     with open(folder_path + file_name + '.pkl', 'wb') as f:
+    #         pickle.dump(trading_results_models, f)
 
     ###---------------- Concatenate segments of trading results together ----------------------###
     PnL_concat_dict = {}
@@ -759,62 +699,3 @@ if __name__ == '__main__':
 
 
 
-"""
-
-n = None
-test = False
-max_shift = 0.1
-assumed_max_lag = 10
-models = None
-data_path = '../../data/data500_OPCLreturns_init3/'
-return_signals = False
-round = 1
-sigma = 0.1
-k = 2
-cum_pnl = []
-sigma_range = np.arange(0.1, 2.1, 0.5)
-return_type = 'simple'
-
-lags = 1
-
-for sigma in sigma_range:
-    # read data produced from matlab code base
-    observations, shifts, classes_true, X_est, P_est, X_true = main.read_data(
-        data_path=data_path + str(round) + '/',
-        sigma=sigma,
-        max_shift=max_shift,
-        k=k,
-        n=n
-    )
-
-    # calculate clustering and pairwise lag matrix
-    classes_spc, classes_est, lag_matrix, ARI_dict = main.clustering(observations=observations,
-                                                                     k=k,
-                                                                     classes_true=classes_true,
-                                                                     assumed_max_lag=assumed_max_lag,
-                                                                     X_est=X_est
-                                                                     )
-
-    sub_observations = observations[:, shifts < 2]
-    sub_lag_matrix = lag_matrix[shifts < 2][:, shifts < 2]
-    sub_classes_true = classes_true[shifts < 2]
-    #
-    results = strategy_het(sub_observations, sub_lag_matrix, sub_classes_true)
-
-    cum_pnl.append(results)
-# cmap = {1:'green',-1:'red'}
-# colors_mapped = [cmap[c] for c in signs]
-# sns.barplot(x=np.arange(len(results)),y=results,palette=colors_mapped)
-
-fig, axes = plt.subplots(len(sigma_range), 1, figsize=(10, 5 * len(sigma_range)))
-n = 15
-for i in range(len(sigma_range)):
-    results = cum_pnl[i]
-    cum_returns = np.cumsum(results)
-    sns.lineplot(x=np.arange(n), y=cum_returns[:n], ax=axes[i], label=f'sigma = {sigma_range[i]:.1g}')
-    axes[i].set_xlabel('day')
-    axes[i].set_ylabel('cumulative return')
-    axes[i].legend()
-    # axes[i].set_title(f'sigma = {sigma_range[i]:.1g}')
-plt.show()
-"""

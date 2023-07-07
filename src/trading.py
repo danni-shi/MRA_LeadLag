@@ -6,6 +6,7 @@ import time
 import scipy.io as spio
 import pickle
 from tqdm import tqdm
+from alignment import lag_mat_to_vec
 
 """
 这是通过为股票进行全局排序从而进行选股择的策略
@@ -111,10 +112,6 @@ def winsorize(data, percentiles=(5, 95)):
     return winsorized_data
 
 
-def lag_mat_to_vec(lag_mat):
-    vec = np.mean(lag_mat, axis=1)
-    vec = vec - np.min(vec)
-    return np.round(vec).astype(int)
 
 
 def PnL_two_groups(returns, leaders, laggers, lag, watch_period=1, hold_period=1, return_leader_pnl = False):

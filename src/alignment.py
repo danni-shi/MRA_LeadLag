@@ -864,7 +864,13 @@ def get_synchronized_signals(observations, classes, lag_matrix, max_lag = None):
             X_est[:,c] = synchronize(sub_observations, r_rounded[abs(r_rounded) <= max_lag])
 
     return X_est
-
+def lag_mat_to_vec(lag_mat, type='row mean'):
+    if type == 'row mean':
+        vec = np.mean(lag_mat, axis=1)
+        vec = vec - np.min(vec)
+    elif type == 'SVD':
+        _, vec, _ = SVD_NRS(lag_mat)
+    return np.round(vec).astype(int)
 def align_plot():
     # intialise parameters for generating observations
     L = 50 # length of signal

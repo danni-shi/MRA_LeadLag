@@ -9,14 +9,15 @@ import pickle
 import pandas as pd
 from tqdm import tqdm
 import os
-from sklearn.cluster import SpectralClustering, KMeans
-from sklearn.metrics.cluster import adjusted_rand_score
+
+
 import scipy.io as spio
 import multiprocessing
 import time
 import json
 from itertools import repeat
 import utils
+from clustering import cluster_SPC, clustering
 import alignment
 import trading
 
@@ -42,61 +43,25 @@ def read_data(data_path, sigma, max_shift, k, n=None):
 
     return observations, shifts, classes_true, X_est, P_est, X_true
 
-
-def cluster_SPC(observations, k, assumed_max_lag, score_fn=alignment.alignment_similarity):
-    # baseline clustering method, obtain lag matrix from pairwise CCF
-    affinity_matrix, lag_matrix = alignment.score_lag_mat(observations, max_lag=assumed_max_lag,
-                                                          score_fn=score_fn)
-    SPC = SpectralClustering(n_clusters=k,
-                             affinity='precomputed',
-                             random_state=0).fit(affinity_matrix)
-
-    # compare baseline and IVF clustering
-    classes_spc = SPC.labels_
-    return classes_spc, lag_matrix
-
-
-def clustering(observations, k, assumed_max_lag, X_est, classes_true=None, score_fn=alignment.alignment_similarity):
-    # --------- Clustering ----------#
-
-    classes_spc, lag_matrix = cluster_SPC(observations, k, assumed_max_lag, score_fn=score_fn)
-    classes_est = np.apply_along_axis(lambda x: utils.assign_classes(x, X_est), 0, observations)
-
-    if classes_true is None:
-        classes_est = utils.align_classes(classes_est, classes_spc)
-
-        return classes_spc, classes_est, lag_matrix
-
-    else:
-        classes_spc_aligned = utils.align_classes(classes_spc, classes_true)
-        classes_est_aligned = utils.align_classes(classes_est, classes_true)
-        assert np.sum(classes_spc_aligned == classes_true) >= np.sum(classes_spc == classes_true)
-        assert np.sum(classes_est_aligned == classes_true) >= np.sum(classes_est == classes_true)
-        classes_spc = classes_spc_aligned
-        classes_est = classes_est_aligned
-
-        ARI_dict = {'spc': adjusted_rand_score(classes_true, classes_spc),
-                    'het': adjusted_rand_score(classes_true, classes_est)}
-
-        return classes_spc, classes_est, lag_matrix, ARI_dict
-
-
 def eval_models(lag_matrix, shifts=None, assumed_max_lag=5, \
                 models=['pairwise', 'sync', 'spc-homo', 'het'],
                 observations=None,
                 classes_true=None,
                 classes_spc=None,
                 classes_est=None,
+                X_est_spc_homo=None,
                 X_est=None,
                 sigma=None,
                 return_signals=False,
-                return_lag_mat=True,
+                return_lag_vec=True,
+                return_lag_mat=False,
                 return_PnL=False,
                 **trading_kwargs):
     # if shifts if None meannign we are running real data and have no ground truth
     results_dict = {}
     signal_dict = {}
     lag_mat_dict = {}
+    lag_vec_dict = {}
     PnL_dict = {}
 
     # ----- Evaluate the lag estimation methods -----#
@@ -145,7 +110,7 @@ def eval_models(lag_matrix, shifts=None, assumed_max_lag=5, \
 
     if 'spc-homo' in models:
         # SPC + homogeneous optimization
-        X_est_spc_homo = alignment.latent_signal_homo(observations, classes_spc, sigma)
+        # X_est_spc_homo = alignment.latent_signal_homo(observations, classes_spc, sigma)
         lag_mat_spc_homo = alignment.get_lag_matrix_het(observations, classes_spc, X_est_spc_homo, assumed_max_lag)
         signal_dict['spc-homo'] = X_est_spc_homo
         lag_mat_dict['spc-homo'] = lag_mat_spc_homo
@@ -166,6 +131,11 @@ def eval_models(lag_matrix, shifts=None, assumed_max_lag=5, \
                                                      classes_true,
                                                      error_penalty)
             results_dict['het'] = results_het
+
+    for model, lag_mat in lag_mat_dict.items():
+        lag_vec_dict[model] = {alignment_type: alignment.lag_mat_to_vec(lag_mat, alignment_type) \
+                               for alignment_type in ['row mean', 'SVD']
+                               }
     # store results in dictionary
     return_dict = {}
 
@@ -175,6 +145,8 @@ def eval_models(lag_matrix, shifts=None, assumed_max_lag=5, \
         return_dict['signals'] = signal_dict
     if return_lag_mat:
         return_dict['lag mat'] = lag_mat_dict
+    if return_lag_vec:
+        return_dict['lag vec'] = lag_vec_dict
     if return_PnL:
         for model, lag_mat in lag_mat_dict.items():
             if model == 'het':
@@ -408,27 +380,50 @@ def read_realdata_results(data_path, sigma, k):
     results_mat = spio.loadmat(results_path)
     X_est = results_mat['x_est']
     P_est = results_mat['p_est'].flatten()
+    X_est_homo = results_mat['x_est_homo']
 
-    return X_est, P_est
-
-
-def normalize_by_column(data):
-    mean = np.mean(data, axis=0)
-    std = np.std(data, axis=0)
-    return (data - mean) / std
+    return X_est, P_est, X_est_homo
 
 
-def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=None,
+# def clustering_real_data(K_range=[1,2,3], assumed_max_lag=5,
+#                   start_index=0, signal_length=50, scale_method='normalized',
+#                          data_path='please check data_path',
+#                          save_path='please check save_path'):
+#     """
+#     For time series of selected range, perform SPC clustering for each of the given number of classes in K_range
+#     """
+#
+#     # read data
+#     end_index = start_index + signal_length
+#     data = pd.read_csv(data_path, index_col=0).iloc[:, start_index:end_index]
+#     if scale_method == 'normalized': # normalized by subtracting the mean and scale by std
+#         obs = normalize_by_column(np.array(data.T))
+#     elif scale_method == 'scaled': # scale the observation by std
+#         obs = np.array(data.T) / np.std(np.array(data.T), axis=0)  # do not subtract the mean
+#     classes = {f'K={k}': {} for k in K_range}
+#     lag_matrices = {f'K={k}': {} for k in K_range}
+#     for k in K_range:
+#         # SPC clustering and obtain lag_matrix from pairwise CCF
+#         classes_spc, lag_matrix = cluster_SPC(obs, k, assumed_max_lag)
+#         classes[f'K={k}'] = classes_spc
+#         lag_matrices[f'K={k}'] = lag_matrix
+#
+#     with open(save_path + f'/classes/start{start_index}end{end_index}.pkl', 'wb') as f:
+#         pickle.dump(classes, f)
+#     with open(save_path + f'/lag_matrices_pairwise/start{start_index}end{end_index}.pkl', 'wb') as f:
+#         pickle.dump(lag_matrices, f)
+
+def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
                   start_index=0, signal_length=50, assumed_max_lag=5,
-                  models=None, data_path='please check data_path',
+                  scale_method = 'normalized',
+                  models=['pairwise', 'sync', 'spc-homo', 'het'],
+                  data_path='please check data_path',
                   estimates_path='please check estimates_path',
                   save_path='please check save_path',
-                  return_signals=False, return_lag_mat=False,
+                  return_signals=False,
+                  return_lag_vec=True,
+                  return_lag_mat=False,
                   return_PnL=False):
-    if models is None:
-        models = ['pairwise', 'sync', 'spc-homo', 'het']
-    if K_range is None:
-        K_range = [1, 2, 3]
 
     # save parameters only once
     params_save_dir  = f'{save_path}/params.json'
@@ -436,10 +431,13 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=None,
         params = dict(sigma_range=list(sigma_range), K_range=K_range,
                       signal_length=signal_length,
                       assumed_max_lag=assumed_max_lag,
+                      scale_method=scale_method,
                       models=models, data_path=data_path,
                       estimates_path=estimates_path,
                       save_path=save_path,
-                      return_signals=return_signals, return_lag_mat=return_lag_mat,
+                      return_signals=return_signals,
+                      return_lag_mat=return_lag_mat,
+                      return_lag_vec=return_lag_vec,
                       return_PnL=return_PnL)
         with open(params_save_dir, 'w') as json_file:
             json.dump(params, json_file)
@@ -450,42 +448,72 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=None,
     data = pd.read_csv(data_path, index_col=0).iloc[:, start_index:end_index]
     ticker = data.index
     dates = data.columns
-    # obs_normalized = normalize_by_column(np.array(data.T))
-    obs_scaled = np.array(data.T) / np.std(np.array(data.T), axis=0)  # do not subtract the mean
+    if scale_method == 'normalized':  # normalized by subtracting the mean and scale by std
+        obs = utils.normalize_by_column(np.array(data.T))
+    elif scale_method == 'scaled':  # scale the observation by std
+        obs = np.array(data.T) / np.std(np.array(data.T), axis=0)  # do not subtract the mean
+    # obs_scaled = np.array(data.T) / np.std(np.array(data.T), axis=0)  # do not subtract the mean
 
     # initialise containers
     estimates = {}
     PnL = {}
     lag_matrices = {}
-    for k in K_range:
+    lag_vectors = {}
+    # with open(save_path + f'/classes/start{start_index}end{end_index}.pkl', 'rb') as f:
+    #     classes_spc_dict = pickle.load(f)
+    classes_spc_dict = spio.loadmat(save_path + f'/classes/start{start_index}end{end_index}.mat')
+    with open(save_path + f'/lag_matrices_pairwise/start{start_index}end{end_index}.pkl', 'rb') as f:
+        lag_matrices_dict = pickle.load(f)
+
+    for k in tqdm(K_range):
         estimates[f'K={k}'] = {}
+        lag_vectors[f'K={k}'] = {}
         lag_matrices[f'K={k}'] = {}
         PnL[f'K={k}'] = {}
         # SPC clustering and obtain lag_matrix from pairwise CCF
-        classes_spc, lag_matrix = cluster_SPC(obs_scaled, k, assumed_max_lag)
+        # classes_spc, lag_matrix = cluster_SPC(obs_scaled, k, assumed_max_lag)
+        classes_spc = classes_spc_dict[f'K{k}'].flatten()
+        lag_matrix = lag_matrices_dict[f'K={k}']
+        # evaluate models pairwise and sync
+        results1 = eval_models(
+            lag_matrix=lag_matrix,
+            assumed_max_lag=assumed_max_lag,
+            models=['pairwise', 'sync'],
+            observations=obs,
+            classes_spc=classes_spc,
+            return_signals=return_signals,
+            return_lag_vec=return_lag_vec,
+            return_lag_mat=return_lag_mat,
+            return_PnL=return_PnL
+        )
         for sigma in sigma_range:
 
             # read data produced from matlab code base
-            X_est, P_est = read_realdata_results(
+            # X_est, P_est = read_realdata_results(
+            #     data_path=estimates_path, sigma=sigma, k=k)
+            X_est, P_est, X_est_homo = read_realdata_results(
                 data_path=estimates_path, sigma=sigma, k=k)
-
             # calculate and align the clustering based on  Het-IVF signal estimates
-            classes_est = np.apply_along_axis(lambda x: utils.assign_classes(x, X_est), 0, obs_scaled)
+            classes_est = np.apply_along_axis(lambda x: utils.assign_classes(x, X_est), 0, obs)
             classes_est = utils.align_classes(classes_est, classes_spc)
             # predict lags matrices using different models
             results = eval_models(
                 lag_matrix=lag_matrix,
                 assumed_max_lag=assumed_max_lag,
-                models=models,
-                observations=obs_scaled,
+                models=['spc-homo', 'het'],
+                observations=obs,
                 classes_spc=classes_spc,
                 classes_est=classes_est,
+                X_est_spc_homo=X_est_homo,
                 X_est=X_est,
                 sigma=sigma,
                 return_signals=return_signals,
+                return_lag_vec=return_lag_vec,
                 return_lag_mat=return_lag_mat,
                 return_PnL=return_PnL
             )
+            for key in results.keys():
+                results[key].update(results1[key])
             # store model performance results in dictionaries
 
             if return_signals:
@@ -505,6 +533,9 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=None,
                 estimates[f'K={k}'][f'sigma={sigma:.2g}'] = signal_class_prob
 
             # store the  lag matrices predicted by the models
+            if return_lag_vec:
+                lag_vec_dict = results['lag vec']
+                lag_vectors[f'K={k}'][f'sigma={sigma:.2g}'] = lag_vec_dict
             if return_lag_mat:
                 lag_mat_dict = results['lag mat']
                 lag_matrices[f'K={k}'][f'sigma={sigma:.2g}'] = lag_mat_dict
@@ -512,13 +543,17 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=None,
                 PnL_dict = results['PnL']
                 PnL[f'K={k}'][f'sigma={sigma:.2g}'] = PnL_dict
      # save the results to folder
-    for subfolder in ['signal_estimates', 'lag_matrices', 'PnL']:
+    for subfolder in ['signal_estimates', 'lag_matrices', 'PnL','lag_vectors']:
         utils.create_folder_if_not_existed(f'{save_path}/{subfolder}')
 
     if return_signals:
         sub_dir = f'{save_path}/signal_estimates'
         with open(sub_dir + f'/start{start_index}end{end_index}.pkl', 'wb') as f:
             pickle.dump(estimates, f)
+    if return_lag_vec:
+        sub_dir = f'{save_path}/lag_vectors'
+        with open(sub_dir + f'/start{start_index}end{end_index}.pkl', 'wb') as f:
+            pickle.dump(lag_vectors, f)
     if return_lag_mat:
         sub_dir = f'{save_path}/lag_matrices'
         with open(sub_dir + f'/start{start_index}end{end_index}.pkl', 'wb') as f:
@@ -545,47 +580,63 @@ def run_wrapper(round, save_path):
 
 
 
-def run_wrapper_real_data(start_index,save_path):
-    L = 50  # length of signal estimation
-    # estimates_path = f'../../data/pvCLCL_results/start{start_index + 1}_end{start_index + L}/'
-    estimates_path = f'/Users/caribbeanbluetin/Desktop/Research/MRA_LeadLag_old/data/pvCLCL_results/start{start_index + 1}_end{start_index + L}/'
+def run_wrapper_real_data(inputs):
+    start_index, save_path = inputs
 
-
-    run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1, 2, 3],
-                  start_index=start_index, signal_length=L, assumed_max_lag=2,
+    params_save_dir = f'{save_path}/params_clustering.json'
+    with open(params_save_dir, 'r') as json_file:
+        params = json.load(json_file)
+    K_range = params['K_range']
+    signal_length = params['signal_length']
+    assumed_max_lag = params['assumed_max_lag']
+    scale_method = params['scale_method']
+    data_path = params['data_path']
+    estimates_path = f'/Users/caribbeanbluetin/Desktop/Research/MRA_LeadLag/data/pvCLCL_results/start{start_index + 1}_end{start_index + signal_length}/'
+    run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=K_range,
+                  start_index=start_index, signal_length=signal_length,
+                  assumed_max_lag=assumed_max_lag, scale_method=scale_method,
                   models=['pairwise', 'sync', 'spc-homo', 'het'],
-                  data_path='../data/pvCLCL_clean.csv',
+                  data_path=data_path,
                   save_path=save_path,
                   estimates_path=estimates_path,
-                  return_signals=True, return_lag_mat=True,
+                  return_signals=True,
+                  return_lag_vec=True,
+                  return_lag_mat=False,
                   return_PnL=False)
-    # progress_bar.update(1)
 
 
 if __name__ == "__main__":
     real_data = True
     if real_data:
-        folder_name = 'test'
-        save_path = utils.save_to_folder('../results/real', folder_name)
-        # real data
-        start = 505;
-        end = 550
-        # end = 1180
+        save_path = '../results/real/2023-07-04-01h04min_clustering_full'
+        # inherit parameters from clustering experiments
+        params_save_dir = f'{save_path}/params_clustering.json'
+        with open(params_save_dir, 'r') as json_file:
+            params = json.load(json_file)
+        # start = params['start']
+        # end = params['end']
+        # retrain_period = params['retrain_period']
+        start = 105
+        end = 1000
         retrain_period = 10
+
+
         start_indices = range(start, end, retrain_period)
-        start = time.time()
-        # Create a progress bar with total number of tasks
-        # progress_bar = tqdm(total=len(start_indices))
+        inputs = list(zip(start_indices,repeat(save_path)))
+        start_time = time.time()
+
         # map inputs to functions
+        # for start_index in start_indices:
+        #     run_wrapper_real_data(start_index, save_path)
         with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
             # use the pool to apply the worker function to each input in parallel
             # pool.map(run_wrapper_real_data, start_indices)     previous pool
-            _ = list(tqdm(pool.starmap(run_wrapper_real_data, zip(start_indices,repeat(save_path))),
+            _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
                           total=len(start_indices)))
             pool.close()
             pool.join()
-        # progress_bar.close()
-        print(f'time taken to run {len(start_indices)} predictions: {time.time() - start}')
+
+        print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
 
     else:
         folder_name = 'test'
@@ -593,12 +644,12 @@ if __name__ == "__main__":
         # remember to untick 'Run with Python console' in config
         rounds = 4
         inputs = range(1, 1 + rounds)
-        start = time.time()
-        with multiprocessing.Pool() as pool:
+        start_time = time.time()
+        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
             # use the pool to apply the worker function to each input in parallel
             pool.starmap(run_wrapper, zip(inputs, repeat(save_path)))
             pool.close()
-        print(f'time taken to run {rounds} rounds: {time.time() - start}')
+        print(f'time taken to run {rounds} rounds: {time.time() - start_time}')
 
         # run single thread for debugging
         # run(max_shift=2, K_range=[2], sigma_range=np.arange(1.0, 2.0, 0.5),
