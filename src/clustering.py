@@ -21,23 +21,35 @@ from tqdm import tqdm
 import alignment
 import utils
 
-def cluster_SPC(observations, k, assumed_max_lag, score_fn=alignment.alignment_similarity):
+# def cluster_SPC(observations, k, assumed_max_lag, score_fn=alignment.alignment_similarity):
+#     # baseline clustering method, obtain lag matrix from pairwise CCF
+#     # affinity_matrix, lag_matrix = alignment.score_lag_mat(observations, max_lag=assumed_max_lag,
+#     #                                                       score_fn=score_fn)
+#     # if (affinity_matrix<0).any():
+#     #     print('detected negative similarity')
+#     # affinity_matrix[affinity_matrix<0] = 0
+#     SPC = SpectralClustering(n_clusters=k,
+#                              affinity='precomputed',
+#                              random_state=0).fit(affinity_matrix)
+#
+#     # compare baseline and IVF clustering
+#     classes_spc = SPC.labels_
+#     return classes_spc, lag_matrix
+def cluster_SPC(affinity_matrix, k):
     # baseline clustering method, obtain lag matrix from pairwise CCF
-    affinity_matrix, lag_matrix = alignment.score_lag_mat(observations, max_lag=assumed_max_lag,
-                                                          score_fn=score_fn)
-    affinity_matrix[affinity_matrix<0] = 0
     SPC = SpectralClustering(n_clusters=k,
                              affinity='precomputed',
                              random_state=0).fit(affinity_matrix)
 
     # compare baseline and IVF clustering
     classes_spc = SPC.labels_
-    return classes_spc, lag_matrix
-
+    return classes_spc
 def clustering(observations, k, assumed_max_lag, X_est, classes_true=None, score_fn=alignment.alignment_similarity):
     # --------- Clustering ----------#
-
-    classes_spc, lag_matrix = cluster_SPC(observations, k, assumed_max_lag, score_fn=score_fn)
+    affinity_matrix, lag_matrix = alignment.score_lag_mat(observations, max_lag=assumed_max_lag,
+                                                          score_fn=score_fn)
+    # affinity_matrix = np.exp(affinity_matrix)
+    classes_spc = cluster_SPC(affinity_matrix, k)
     classes_est = np.apply_along_axis(lambda x: utils.assign_classes(x, X_est), 0, observations)
 
     if classes_true is None:
@@ -80,15 +92,20 @@ def clustering_real_data(K_range=[1,2,3], assumed_max_lag=5,
     # read data
     end_index = start_index + signal_length
     data = pd.read_csv(data_path, index_col=0).iloc[:, start_index:end_index]
+    if start_index == 5145:
+        data.drop('TIF', axis=0, inplace=True)
     if scale_method == 'normalized': # normalized by subtracting the mean and scale by std
         obs = utils.normalize_by_column(np.array(data.T))
     elif scale_method == 'scaled': # scale the observation by std
         obs = np.array(data.T) / np.std(np.array(data.T), axis=0)  # do not subtract the mean
     classes = {f'K{k}': {} for k in K_range} # special key name for MATLAB
     lag_matrices = {f'K={k}': {} for k in K_range}
+    affinity_matrix, lag_matrix = alignment.score_lag_mat(obs, max_lag=assumed_max_lag,
+                                                          score_fn=alignment.alignment_similarity)
+    # affinity_matrix = np.exp(affinity_matrix)
     for k in K_range:
         # SPC clustering and obtain lag_matrix from pairwise CCF
-        classes_spc, lag_matrix = cluster_SPC(obs, k, assumed_max_lag)
+        classes_spc = cluster_SPC(affinity_matrix, k)
         # make sure the labels are continuous starting from 0
         classes_spc = np.unique(classes_spc, return_inverse=True)[1]
         classes[f'K{k}'] = classes_spc
@@ -113,8 +130,8 @@ def clustering_real_data_wrapper(inputs):
     # progress_bar.update(1)
 if __name__ == "__main__":
     folder_name = 'clustering_full'
-    save_path = utils.save_to_folder('../results/real', folder_name)
-    # save_path = '../results/real/2023-07-02-23h37min_test'
+    # save_path = utils.save_to_folder('../results/real', folder_name)
+    save_path = '../results/real/2023-07-04-01h04min_clustering_full'
     # set the range and retrain period of time series data
     start = 5145;
     end = 5156
@@ -125,15 +142,12 @@ if __name__ == "__main__":
     utils.create_folder_if_not_existed(save_path + '/classes')
     utils.create_folder_if_not_existed(save_path + '/lag_matrices_pairwise')
 
+    # start clustering with multiprocessing
+    start_time = time.time()
     for start_index in start_indices:
         clustering_real_data_wrapper((start_index, save_path))
 
-
-    # # start clustering with multiprocessing
-    # start_time = time.time()
-    # # progress_bar = tqdm(total=len(start_indices))
-    # # map inputs to functions
-    # # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+    # map inputs to functions
     # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
     #     # use the pool to apply the worker function to each input in parallel
     #     _ = list(tqdm(pool.imap(clustering_real_data_wrapper, inputs),
@@ -141,15 +155,14 @@ if __name__ == "__main__":
     #     # pool.starmap(clustering_real_data_wrapper, inputs)
     #     pool.close()
     #     pool.join()
-    # # progress_bar.close()
     # print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
 
    # save more params, important that we run this after clustering
-    params_save_dir = f'{save_path}/params_clustering.json'
-    with open(params_save_dir, 'r') as json_file:
-        params = json.load(json_file)
-    params['start'] = start
-    params['end'] = end
-    params['retrain_period'] = retrain_period
-    with open(params_save_dir, 'w') as json_file:
-        json.dump(params, json_file)
+   #  params_save_dir = f'{save_path}/params_clustering.json'
+   #  with open(params_save_dir, 'r') as json_file:
+   #      params = json.load(json_file)
+   #  params['start'] = start
+   #  params['end'] = end
+   #  params['retrain_period'] = retrain_period
+   #  with open(params_save_dir, 'w') as json_file:
+   #      json.dump(params, json_file)

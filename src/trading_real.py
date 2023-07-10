@@ -369,7 +369,9 @@ def trading_single(df_returns,
                    lag_vectors, estimates, k, sigma,
                    model, trading_period_start, trading_period_end,
                    assumed_max_lag, hedge,  **trading_kwargs):
-
+    if ((trading_period_start, trading_period_end) == (5145,5195))\
+            or (trading_period_start, trading_period_end) == (5195,5205):
+       df_returns = df_returns.drop('TIF', axis=0)
     # load estimates of lags
     lag_vec = lag_vectors[f'K={k}'][f'sigma={sigma:.2g}'][model]['row mean']
 
@@ -502,6 +504,7 @@ def best_K_and_sigma(df_returns, prediction_path,
     if model in ['pairwise', 'sync']:
         sigma_range = [sigma_range[0]]
     score = np.zeros((len(K_range),len(sigma_range)))
+    fail_count = 0
     for i, k in enumerate(K_range):
         for j, sigma in enumerate(sigma_range):
             # load estimates of lags
@@ -523,8 +526,12 @@ def best_K_and_sigma(df_returns, prediction_path,
                 result = trading_results['portfolio average'][return_type][metric]['average']
                 score[i, j] = np.sum(result)
             except:
-                print(f'Trading Criteria not met at period {trading_period_start} to {trading_period_end} with model {model} at K {k}, sigma {sigma}')
+                # print(f'Trading Criteria not met at period {trading_period_start} to {trading_period_end} with model {model} at K {k}, sigma {sigma:.1faren}')
                 score[i, j] = -np.Inf
+                fail_count += 1
+    if fail_count == len(K_range) * len(sigma_range):
+        print(
+            f'Trading Criteria not met at period {trading_period_start} to {trading_period_end} with model {model}')
     ind_k, ind_s = np.unravel_index(score.argmax(), score.shape)
 
     return K_range[ind_k], sigma_range[ind_s]
@@ -614,8 +621,8 @@ if __name__ == '__main__':
     K_range = [1, 2, 3]
     sigma_range = np.arange(0.2, 2.1, 0.2)
     # start, ending, training data length, period of retrain
-    start = 5;
-    end = 1000
+    start = 4445
+    end = 5145
     retrain_period = 10
     signal_length = 50
     start_indices = range(start, end, retrain_period)

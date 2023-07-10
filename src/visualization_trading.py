@@ -8,12 +8,12 @@ import utils
 # add 'src/' to path
 sys.path.append('../src')
 
-start = 5;
-end = 1000
+start = 4445; end = 5145
 retrain_period = 10
 signal_length = 50
 file_name = f'start{start}end{end}_length{signal_length}_trade{retrain_period}'
-with open('../results/real/2023-07-04-01h04min_clustering_full/PnL_real_single_weighted/' + file_name + '.pkl',
+prediction_folder = '2023-07-04-01h04min_clustering_full'
+with open(f'../results/real/{prediction_folder}/PnL_real_single_weighted/' + file_name + '.pkl',
           'rb') as f:
     PnL_SR = pickle.load(f)
 
@@ -43,8 +43,7 @@ lty_map = {'sync': 'dotted',
            'spc-homo': 'dashdot',
            'het': 'dashed',
            'true': 'solid'}
-# change folder name accroding to experiment specications
-folder_name = f'results_2023-07-04-01h04min_clustering_full/trading_OS_PnL_length50_retrain10_centred_optimized'
+
 
 def plot_by_model():
     fig, axes = plt.subplots(
@@ -83,8 +82,8 @@ def plot_by_model():
                     **plot_config)
         ax.legend(loc='lower right')
         ax.grid(visible=True)
-        fig.suptitle(f'Cumulative Returns optimized over K range:{list(K_range)} and \nsigma range:{PnL_sigma_range}')
-
+    fig.suptitle(f'Cumulative Returns optimized over K range:{list(K_range)} and \nsigma range:{PnL_sigma_range}')
+    plt.savefig(results_save_dir + '/by_models.png')
 
 def plot_by_return_types():
     for return_type, label in RT_map.items():
@@ -105,13 +104,15 @@ def plot_by_return_types():
             cum_pnl = np.cumsum(values)
             SR = returns_dict['annualized SR'][model]
             mean_PnL = np.mean(values)  # include the first few days when no trading occurs
-            ax.plot(np.arange(len(values)), cum_pnl,
+            ax.plot(start + np.arange(len(values)), cum_pnl,
                     label=f'{model}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
                     color=color_map[model])
             ax.legend(loc='lower right')
             ax.grid(visible=True)
         plt.savefig(results_save_dir + f'/{label}')
 
+# change folder name accroding to experiment specications
+folder_name = f'{prediction_folder}/trading_OS_PnL_length50_retrain10_centred_optimized'
 results_save_dir = utils.save_to_folder('../plots', folder_name)
 plot_by_return_types()
 

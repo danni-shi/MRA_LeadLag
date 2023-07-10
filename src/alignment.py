@@ -756,49 +756,53 @@ def SVD_NRS(H, scale_estimator = 'median'):
     Args:
         H (_type_): _description_
     """
+
     L = H.shape[0]
-    ones = np.ones((L,1))
+    if (H == 0).all():
+        return np.zeros(L), np.zeros(L), 0
+    else:
+        ones = np.ones((L,1))
 
-    D_inv_sqrt = np.diag(np.sqrt(abs(H).sum(axis = 1))) # diagonal matrix of sqrt of column sum of abs
-    H_ss = D_inv_sqrt @ H @ D_inv_sqrt
-    U, S, _ = np.linalg.svd(H_ss) # S already sorted in descending order, U are orthonormal basis
-    assert np.all(S[:-1] >= S[1:]), 'Singular values are not sorted in desceding order'
+        D_inv_sqrt = np.diag(np.sqrt(abs(H).sum(axis = 1))) # diagonal matrix of sqrt of column sum of abs
+        H_ss = D_inv_sqrt @ H @ D_inv_sqrt
+        U, S, _ = np.linalg.svd(H_ss) # S already sorted in descending order, U are orthonormal basis
+        assert np.all(S[:-1] >= S[1:]), 'Singular values are not sorted in desceding order'
 
-    u1_hat = U[:,0]; u2_hat = U[:,1]
-    u1 = D_inv_sqrt @ ones
-    u1 /= np.linalg.norm(u1) # normalize
+        u1_hat = U[:,0]; u2_hat = U[:,1]
+        u1 = D_inv_sqrt @ ones
+        u1 /= np.linalg.norm(u1) # normalize
 
-    u1_bar = (U[:,:2] @ U[:,:2].T @ u1).flatten()
-    # u1_bar /= np.linalg.norm(u1_bar) # normalize
-    # u2_tilde = u1_hat - np.dot(u1_hat,u1_bar)*u1_bar # same as proposed method
-    # u2_tilde /= np.linalg.norm(u2_tilde) # normalize
-    # test
-    T = np.array([np.dot(u2_hat,u1_bar),-np.dot(u1_hat,u1_bar)])
-    u2_tilde_test = U[:,:2] @ T
+        u1_bar = (U[:,:2] @ U[:,:2].T @ u1).flatten()
+        # u1_bar /= np.linalg.norm(u1_bar) # normalize
+        # u2_tilde = u1_hat - np.dot(u1_hat,u1_bar)*u1_bar # same as proposed method
+        # u2_tilde /= np.linalg.norm(u2_tilde) # normalize
+        # test
+        T = np.array([np.dot(u2_hat,u1_bar),-np.dot(u1_hat,u1_bar)])
+        u2_tilde_test = U[:,:2] @ T
 
-    u2_tilde_test /= np.linalg.norm(u1_bar)
+        u2_tilde_test /= np.linalg.norm(u1_bar)
 
-    # assert np.linalg.norm(u2_tilde_test.flatten()-u2_tilde) <1e-8 or np.linalg.norm(u2_tilde_test.flatten()+u2_tilde) <1e-8
-    pi = D_inv_sqrt @ u2_tilde_test.reshape(-1,1)
-    pi = reconcile_score_signs(H, pi)
-    S = lag_vec_to_mat(pi)
+        # assert np.linalg.norm(u2_tilde_test.flatten()-u2_tilde) <1e-8 or np.linalg.norm(u2_tilde_test.flatten()+u2_tilde) <1e-8
+        pi = D_inv_sqrt @ u2_tilde_test.reshape(-1,1)
+        pi = reconcile_score_signs(H, pi)
+        S = lag_vec_to_mat(pi)
 
-    # median
-    if scale_estimator == 'median':
+        # median
+        if scale_estimator == 'median':
 
-        offset = np.divide(H, (S+1e-9), out=np.zeros(H.shape, dtype=float), where=np.eye(H.shape[0])==0)
-        tau = np.median(offset[np.where(~np.eye(S.shape[0],dtype=bool))])
-        if tau == 0:
+            offset = np.divide(H, (S+1e-9), out=np.zeros(H.shape, dtype=float), where=np.eye(H.shape[0])==0)
+            tau = np.median(offset[np.where(~np.eye(S.shape[0],dtype=bool))])
+            if tau == 0:
+                tau = np.sum(abs(np.triu(H,k=1)))/np.sum(abs(np.triu(S,k=1)))
+
+        if scale_estimator == 'regression':
             tau = np.sum(abs(np.triu(H,k=1)))/np.sum(abs(np.triu(S,k=1)))
 
-    if scale_estimator == 'regression':
-        tau = np.sum(abs(np.triu(H,k=1)))/np.sum(abs(np.triu(S,k=1)))
-
-    r = tau * pi - tau * np.dot(ones.flatten(), pi.flatten()) * ones / L
-    r_test = tau * pi
-    # test
-    r_test = r_test - np.mean(r_test)
-    assert np.linalg.norm(r_test.flatten()-r.flatten()) <1e-8 or np.linalg.norm(r_test.flatten()+r.flatten()) <1e-8
+        r = tau * pi - tau * np.dot(ones.flatten(), pi.flatten()) * ones / L
+        r_test = tau * pi
+        # test
+        r_test = r_test - np.mean(r_test)
+        assert np.linalg.norm(r_test.flatten()-r.flatten()) <1e-8 or np.linalg.norm(r_test.flatten()+r.flatten()) <1e-8
 
     return pi.flatten(), r.flatten(), tau
 

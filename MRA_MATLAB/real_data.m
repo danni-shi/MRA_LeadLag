@@ -2,6 +2,7 @@ clear all; %#ok<CLALL>
 close all;
 clc;
 
+rng(42);
 %% Get data
 % daily returns from close to close
 data_table = readtable('../data/pvCLCL_clean_winsorized.csv'); 

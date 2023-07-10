@@ -2,6 +2,8 @@ clear all; %#ok<CLALL>
 close all;
 clc;
 
+rng(42);
+
 %% Get data
 % daily returns from close to close
 data_table = readtable('../data/pvCLCL_clean_winsorized.csv'); 
@@ -9,7 +11,7 @@ tickers = data_table(:,1);
 data_table(:,1) = [];
 period_length = 50;
 period_retrain = 10; % retrain every 10 trading days
-clustering_path = '../results/real/2023-07-04-01h04min_clustering_full/classes';
+clustering_path = '../results/real/2023-07-07-16h26min_clustering_full_exp/classes';
 
 K_range = 1:3;
 sigma_range = 0.2:0.2:2.0;
@@ -27,10 +29,11 @@ nextrainits = 2;
 % Nk = length(K_range);
 % Ns = length(sigma_range);
 
-starting = 106;
-ending = 1000;
+starting = 2006;
+ending = 2895;
 
 for start_index = starting:period_retrain:ending
+    disp(start_index);  
     tic;
     end_index = start_index + period_length - 1;
     
@@ -43,7 +46,7 @@ for start_index = starting:period_retrain:ending
     classes_spc_struct = load(sprintf('%s/%s',clustering_path,clustering_file));
     
     % create folder to store results for each period
-    folder_name = sprintf('../data/pvCLCL_results/start%i_end%i',start_index,end_index);
+    folder_name = sprintf('../data/pvCLCL_results_exp/start%i_end%i',start_index,end_index);
     if exist(folder_name, 'dir')
         rmdir(folder_name,'s');
     end

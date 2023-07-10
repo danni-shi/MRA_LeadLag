@@ -446,6 +446,8 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
     # read data
     end_index = start_index + signal_length
     data = pd.read_csv(data_path, index_col=0).iloc[:, start_index:end_index]
+    if start_index == 5145:
+        data.drop('TIF', axis=0, inplace=True)
     ticker = data.index
     dates = data.columns
     if scale_method == 'normalized':  # normalized by subtracting the mean and scale by std
@@ -616,8 +618,8 @@ if __name__ == "__main__":
         # start = params['start']
         # end = params['end']
         # retrain_period = params['retrain_period']
-        start = 105
-        end = 1000
+        start = 5145
+        end = 5156
         retrain_period = 10
 
 
@@ -626,17 +628,17 @@ if __name__ == "__main__":
         start_time = time.time()
 
         # map inputs to functions
-        # for start_index in start_indices:
-        #     run_wrapper_real_data(start_index, save_path)
-        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-            # use the pool to apply the worker function to each input in parallel
-            # pool.map(run_wrapper_real_data, start_indices)     previous pool
-            _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
-                          total=len(start_indices)))
-            pool.close()
-            pool.join()
-
-        print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
+        for start_index in start_indices:
+            run_wrapper_real_data((start_index, save_path))
+        # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+        #     # use the pool to apply the worker function to each input in parallel
+        #     # pool.map(run_wrapper_real_data, start_indices)     previous pool
+        #     _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
+        #                   total=len(start_indices)))
+        #     pool.close()
+        #     pool.join()
+        #
+        # print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
 
     else:
         folder_name = 'test'

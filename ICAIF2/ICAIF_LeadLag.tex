@@ -1,0 +1,439 @@
+%%
+%% This is file `sample-sigconf.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigconf')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigconf.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass
+%% command.
+%%
+%% For submission and review of your manuscript please change the
+%% command to \documentclass[manuscript, screen, review]{acmart}.
+%%
+%% When submitting camera ready or to TAPS, please change the command
+%% to \documentclass[sigconf]{acmart} or whichever template is required
+%% for your publication.
+%%
+%%
+\documentclass[sigconf]{acmart}
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmcopyright}
+\copyrightyear{2018}
+\acmYear{2018}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[Conference acronym 'XX]{Make sure to enter the correct
+  conference title from your rights confirmation emai}{June 03--05,
+  2018}{Woodstock, NY}
+%%
+%%  Uncomment \acmBooktitle if the title of the proceedings is different
+%%  from ``Proceedings of ...''!
+%%
+%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
+%%  June 03--05, 2018, Woodstock, NY}
+\acmPrice{15.00}
+\acmISBN{978-1-4503-XXXX-X/18/06}
+
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-*-biblatex.tex files for templates showcasing
+%% the biblatex styles.
+%%
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Application of Invariant Feature-Based Multi-Reference Alignment on Lead-Lag Detection}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Danni Shi}
+\email{danni.shi@eng.ox.ac.uk}
+% \orcid{1234-5678-9012}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+
+\author{Mihai Cucuringu}
+\email{mihai.cucuringu@stats.ox.ac.uk}
+\affiliation{%
+  \institution{Department of Statistics, University of Oxford}
+  \city{Oxford}
+  \country{UK}}
+\affiliation{%
+  \institution{The Alan Turing Institute}
+  \city{London}
+  \country{UK}}
+
+\author{Jan-Peter Calliess}
+\email{jan-peter.calliess@oxford-man.ox.ac.uk}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+
+
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Trovato et al.}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+ In time series analysis, numerous methods have been developed to detect, measure and apprehend lead-lag relationships between variables, which refers to the time-delay of patterns in a time series relative to the other. Often, the extent of lead-lag between two time series is directly measured with a similarity metric. This approach suffers inconsistency and inaccuracy especially under high-noise regimes. 
+
+This work represents several frameworks of Multireference alignment (MRA), the estimation of a unified, de-noised latent signal from a population of time series with linearly-shifted and noisy patterns, and their application on lead-lag detection. The recovered latent signal is treated as the reference vector whose lead-lag metric is calculated against 
+other time series. The relative lead-lag between two actual time series is then obtained as the difference between their lags against the reference vector.  Results show that models with MRA-induced intermediates outperform the simplistic models relying on pairwise similarity in predicting the relative shifts between time series when the signal-to-noise ratio (SNR) is low. The effect of clustering the time series advancing the recovery of the latent signals is also investigated
+
+The results of lead-lag detection can be used on trading stock returns. We developed a trading framework that utilises the relative shift estimations to construct financial signals from the leading time series and trade on multiple portfolios of the lagging time series.  \end{abstract}
+
+%%
+%% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+%% Please copy and paste the code instead of the example below.
+%%
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10010520.10010553.10010562</concept_id>
+  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010575.10010755</concept_id>
+  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010553.10010554</concept_id>
+  <concept_desc>Computer systems organization~Robotics</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003033.10003083.10003095</concept_id>
+  <concept_desc>Networks~Network reliability</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Redundancy}
+\ccsdesc{Computer systems organization~Robotics}
+\ccsdesc[100]{Networks~Network reliability}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{High-dimensional time series, lead-lag, clustering, financial markets}
+
+\received{20 February 2007}
+\received[revised]{12 March 2009}
+\received[accepted]{5 June 2009}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introduction}
+Time series forecasting is a major topic in data science and has been extensively researched from multiple perspectives. Forecasting financial time series is especially challenging due to low SNR and the deficiency of auto-correlation. Yet, in the financial market, it has been observed that the prices of certain groups of assets respond to events and factors quicker than others. In multivariate time series models, market factors can create similar patterns of change in the financial time series of different assets, each with a different time delay. This is what we call a lead-lag structure amongst the time series variables. We aim to construct a measure that estimates the extent and length of lead-lag between two stocks. In this paper, the extent of lead-lag is represented as the maximum cross-correlation between two time series up to a shift. The corresponding length of lead-lag is the number of timescale shifts (as we primarily works with discrete-time data in finance) to achieve the maximum cross-correlation. 
+
+Current methods of lead-lag detection often rely on computing a lead-lag score between a pair of time series (some refs here), which are direct and effective in some use cases. However, several problems arise with this approach:
+\begin{itemize}
+\item Non-robust: At low SNR, pairwise measurement is significantly interfered by the noise in the data and hence become inaccurate
+\item Inconsistent: Pairwise lag predictions need to be synchronized for reliable applications. However, the lag between a pair of time series may not agree with the others. For example, estimations may show that variable $X$ and $Y$ each leads variable $Z$ by 1 day, but that $X$ lags $Y$ by 1 day too.
+\item Computationally expensive: The computation of the pairwise metric of $N$ time series has a complexity $\mathcal{O}(N)$, making it non-scalable to large datasets.
+\end{itemize}
+ 
+
+This result can be subsequently used for price forecasts and devising trading strategies. \\
+    
+    We model the financial time series as the superposition of multiple shifted factor series and noise. We aim to recover the factor series with heterogeneous multireference alignment (MRA)\footnote{The method recovers the original signals and mixing probabilities of the classes in the data, but does not seem to assign class membership of the observations. We may need to find a way to match the observations with signals. Also, each of our observations can contain a superposition of multiple factors. Not sure how we can split them up into observations of single factors, which seem to be the assumption of the method we are trying to apply.}, a method initially proposed to solve problems in cryo-electron microscopy. The original method aims to recover the original signal from cyclically shifted copies of noisy observations while the financial data we work with contains non-cyclic shifts. We make an educated assumption that the shifts are small compared to the length of the time series so that a large proportion of the time series agrees with the cyclically shifted version. We hope that the violation of the rules based on cyclical shifts is negligible and that the method is still effective. If we successfully recover the factor series, we can apply cross-correlation analysis\footnote{This method may not work well when the noise level is high.} of the financial time series against the factor series and find the optimal lags as the time lag of the maximum correlation. We obtain a summarised lead-lag relationship by ranking the optimal lags for each factor series.
+   
+\section{Lead-Lag Detection Based on Cross-Correlation}
+\subsection{Pairwise Lag Measurement}
+\subsection{Relative Lag Measurement with a Reference Signal}
+
+\section{Multireference Alignment}
+\subsection{Homogeneous MRA}
+\subsection{Heterogeneous MRA}
+\subsection{MRA Based on Correlation and Synchronization}
+
+\section{Experiments and Results}
+\subsection{Synthetic Data}
+\subsection{Financial Data}
+
+\section{Discussions}
+\section{Conclusions}
+
+\section{References}
+
+The use of \BibTeX\ for the preparation and formatting of one's
+references is strongly recommended. Authors' names should be complete
+--- use full first names (``Donald E. Knuth'') not initials
+(``D. E. Knuth'') --- and the salient identifying features of a
+reference should be included: title, year, volume, number, pages,
+article DOI, etc.
+
+The bibliography is included in your source document with these two
+commands, placed just before the \verb|\end{document}| command:
+\begin{verbatim}
+  \bibliographystyle{ACM-Reference-Format}
+  \bibliography{bibfile}
+\end{verbatim}
+where ``\verb|bibfile|'' is the name, without the ``\verb|.bib|''
+suffix, of the \BibTeX\ file.
+
+Citations and references are numbered by default. A small number of
+ACM publications have citations and references formatted in the
+``author year'' style; for these exceptions, please include this
+command in the {\bfseries preamble} (before the command
+``\verb|\begin{document}|'') of your \LaTeX\ source:
+\begin{verbatim}
+  \citestyle{acmauthoryear}
+\end{verbatim}
+
+
+  Some examples.  A paginated journal article \cite{Abril07}, an
+  enumerated journal article \cite{Cohen07}, a reference to an entire
+  issue \cite{JCohen96}, a monograph (whole book) \cite{Kosiur01}, a
+  monograph/whole book in a series (see 2a in spec. document)
+  \cite{Harel79}, a divisible-book such as an anthology or compilation
+  \cite{Editor00} followed by the same example, however we only output
+  the series if the volume number is given \cite{Editor00a} (so
+  Editor00a's series should NOT be present since it has no vol. no.),
+  a chapter in a divisible book \cite{Spector90}, a chapter in a
+  divisible book in a series \cite{Douglass98}, a multi-volume work as
+  book \cite{Knuth97}, a couple of articles in a proceedings (of a
+  conference, symposium, workshop for example) (paginated proceedings
+  article) \cite{Andler79, Hagerup1993}, a proceedings article with
+  all possible elements \cite{Smith10}, an example of an enumerated
+  proceedings article \cite{VanGundy07}, an informally published work
+  \cite{Harel78}, a couple of preprints \cite{Bornmann2019,
+    AnzarootPBM14}, a doctoral dissertation \cite{Clarkson85}, a
+  master's thesis: \cite{anisi03}, an online document / world wide web
+  resource \cite{Thornburg01, Ablamowicz07, Poker06}, a video game
+  (Case 1) \cite{Obama08} and (Case 2) \cite{Novak03} and \cite{Lee05}
+  and (Case 3) a patent \cite{JoeScientist001}, work accepted for
+  publication \cite{rous08}, 'YYYYb'-test for prolific author
+  \cite{SaeediMEJ10} and \cite{SaeediJETC10}. Other cites might
+  contain 'duplicate' DOI and URLs (some SIAM articles)
+  \cite{Kirschmer:2010:AEI:1958016.1958018}. Boris / Barbara Beeton:
+  multi-volume works as books \cite{MR781536} and \cite{MR781537}. A
+  couple of citations with DOIs:
+  \cite{2004:ITE:1009386.1010128,Kirschmer:2010:AEI:1958016.1958018}. Online
+  citations: \cite{TUGInstmem, Thornburg01, CTANacmart}.
+  Artifacts: \cite{R} and \cite{UMassCitations}.
+
+\section{Acknowledgments}
+
+Identification of funding sources and other support, and thanks to
+individuals and groups that assisted in the research and the
+preparation of the work should be included in an acknowledgment
+section, which is placed just before the reference section in your
+document.
+
+This section has a special environment:
+\begin{verbatim}
+  \begin{acks}
+  ...
+  \end{acks}
+\end{verbatim}
+so that the information contained therein can be more easily collected
+during the article metadata extraction phase, and to ensure
+consistency in the spelling of the section heading.
+
+Authors should not prepare this section as a numbered or unnumbered {\verb|\section|}; please use the ``{\verb|acks|}'' environment.
+
+\section{Appendices}
+
+If your work needs an appendix, add it before the
+``\verb|\end{document}|'' command at the conclusion of your source
+document.
+
+Start the appendix with the ``\verb|appendix|'' command:
+\begin{verbatim}
+  \appendix
+\end{verbatim}
+and note that in the appendix, sections are lettered, not
+numbered. This document has two appendices, demonstrating the section
+and subsection identification method.
+
+\section{Multi-language papers}
+
+Papers may be written in languages other than English or include
+titles, subtitles, keywords and abstracts in different languages (as a
+rule, a paper in a language other than English should include an
+English title and an English abstract).  Use \verb|language=...| for
+every language used in the paper.  The last language indicated is the
+main language of the paper.  For example, a French paper with
+additional titles and abstracts in English and German may start with
+the following command
+\begin{verbatim}
+\documentclass[sigconf, language=english, language=german,
+               language=french]{acmart}
+\end{verbatim}
+
+The title, subtitle, keywords and abstract will be typeset in the main
+language of the paper.  The commands \verb|\translatedXXX|, \verb|XXX|
+begin title, subtitle and keywords, can be used to set these elements
+in the other languages.  The environment \verb|translatedabstract| is
+used to set the translation of the abstract.  These commands and
+environment have a mandatory first argument: the language of the
+second argument.  See \verb|sample-sigconf-i13n.tex| file for examples
+of their usage.
+
+\section{SIGCHI Extended Abstracts}
+
+The ``\verb|sigchi-a|'' template style (available only in \LaTeX\ and
+not in Word) produces a landscape-orientation formatted article, with
+a wide left margin. Three environments are available for use with the
+``\verb|sigchi-a|'' template style, and produce formatted output in
+the margin:
+\begin{description}
+\item[\texttt{sidebar}:]  Place formatted text in the margin.
+\item[\texttt{marginfigure}:] Place a figure in the margin.
+\item[\texttt{margintable}:] Place a table in the margin.
+\end{description}
+
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section). This ensures the proper
+%% identification of the section in the article metadata, and the
+%% consistent spelling of the heading.
+\begin{acks}
+To Robert, for the bagels and explaining CMYK and color spaces.
+\end{acks}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+
+%%
+%% If your work has an appendix, this is the place to put it.
+\appendix
+
+\section{Research Methods}
+
+\subsection{Part One}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
+malesuada, quam in pulvinar varius, metus nunc fermentum urna, id
+sollicitudin purus odio sit amet enim. Aliquam ullamcorper eu ipsum
+vel mollis. Curabitur quis dictum nisl. Phasellus vel semper risus, et
+lacinia dolor. Integer ultricies commodo sem nec semper.
+
+\subsection{Part Two}
+
+Etiam commodo feugiat nisl pulvinar pellentesque. Etiam auctor sodales
+ligula, non varius nibh pulvinar semper. Suspendisse nec lectus non
+ipsum convallis congue hendrerit vitae sapien. Donec at laoreet
+eros. Vivamus non purus placerat, scelerisque diam eu, cursus
+ante. Etiam aliquam tortor auctor efficitur mattis.
+
+\section{Online Resources}
+
+Nam id fermentum dui. Suspendisse sagittis tortor a nulla mollis, in
+pulvinar ex pretium. Sed interdum orci quis metus euismod, et sagittis
+enim maximus. Vestibulum gravida massa ut felis suscipit
+congue. Quisque mattis elit a risus ultrices commodo venenatis eget
+dui. Etiam sagittis eleifend elementum.
+
+Nam interdum magna at lectus dignissim, ac dignissim lorem
+rhoncus. Maecenas eu arcu ac neque placerat aliquam. Nunc pulvinar
+massa et mattis lacinia.
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.
