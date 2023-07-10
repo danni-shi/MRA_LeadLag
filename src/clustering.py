@@ -3,7 +3,7 @@ Perform the normal clustering on scaled / normalized returns
 and save the clustering results and lag matrices based on pairwise lags
 """
 
-
+import argparse
 import pandas as pd
 import numpy as np
 import json
@@ -129,13 +129,33 @@ def clustering_real_data_wrapper(inputs):
                          )
     # progress_bar.update(1)
 if __name__ == "__main__":
-    folder_name = 'clustering_full'
-    # save_path = utils.save_to_folder('../results/real', folder_name)
-    save_path = '../results/real/2023-07-04-01h04min_clustering_full'
+    # argparser
+    parser = argparse.ArgumentParser(description="iDAD: Hidden Object Detection.")
+    parser.add_argument("--start", default=5, type=int)
+    parser.add_argument("--end", default=5145, type=int)
+    parser.add_argument("--retrain-period", default=10, type=int)
+    parser.add_argument("--folder-name", default='clustering_full', type=str)
+    parser.add_argument('--use-save-path', action=argparse.BooleanOptionalAction)
+    parser.add_argument("--save-path", default='../results/real/test', type=str)
+    parser.add_argument("--parallelize", action=argparse.BooleanOptionalAction)
+    
+
+    args = parser.parse_args()
+    
     # set the range and retrain period of time series data
-    start = 5145;
-    end = 5156
-    retrain_period = 10
+    start = args.start
+    end = args.end
+    retrain_period = args.retrain_period
+    use_save_path = args.use_save_path
+    parallelize = args.parallelize
+    
+    if use_save_path:
+        save_path = args.save_path
+        utils.create_folder_if_not_existed(save_path)
+    else:
+        folder_name = args.folder_name
+        save_path = utils.save_to_folder('../results/real', folder_name)
+    
     start_indices = range(start, end, retrain_period)
     inputs = list(zip(start_indices, repeat(save_path)))
     # create folders to store results
@@ -144,18 +164,20 @@ if __name__ == "__main__":
 
     # start clustering with multiprocessing
     start_time = time.time()
-    for start_index in start_indices:
-        clustering_real_data_wrapper((start_index, save_path))
+    if parallelize:
+        # map inputs to functions
+        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+            # use the pool to apply the worker function to each input in parallel
+            _ = list(tqdm(pool.imap(clustering_real_data_wrapper, inputs),
+                        total=len(start_indices)))
+            # pool.starmap(clustering_real_data_wrapper, inputs)
+            pool.close()
+            pool.join()
+    else:
+        for start_index in tqdm(start_indices):
+            clustering_real_data_wrapper((start_index, save_path))
 
-    # map inputs to functions
-    # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-    #     # use the pool to apply the worker function to each input in parallel
-    #     _ = list(tqdm(pool.imap(clustering_real_data_wrapper, inputs),
-    #                   total=len(start_indices)))
-    #     # pool.starmap(clustering_real_data_wrapper, inputs)
-    #     pool.close()
-    #     pool.join()
-    # print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
+    print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time:.1f}')
 
    # save more params, important that we run this after clustering
    #  params_save_dir = f'{save_path}/params_clustering.json'
