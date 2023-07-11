@@ -593,7 +593,7 @@ def run_wrapper_real_data(inputs):
     assumed_max_lag = params['assumed_max_lag']
     scale_method = params['scale_method']
     data_path = params['data_path']
-    estimates_path = f'/Users/caribbeanbluetin/Desktop/Research/MRA_LeadLag/data/pvCLCL_results/start{start_index + 1}_end{start_index + signal_length}/'
+    estimates_path = f'{save_path}/pvCLCL_results/start{start_index + 1}_end{start_index + signal_length}/'
     run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=K_range,
                   start_index=start_index, signal_length=signal_length,
                   assumed_max_lag=assumed_max_lag, scale_method=scale_method,
@@ -618,8 +618,8 @@ if __name__ == "__main__":
         # start = params['start']
         # end = params['end']
         # retrain_period = params['retrain_period']
-        start = 5145
-        end = 5156
+        start = 1005
+        end = 4445
         retrain_period = 10
 
 
@@ -628,17 +628,17 @@ if __name__ == "__main__":
         start_time = time.time()
 
         # map inputs to functions
-        for start_index in start_indices:
-            run_wrapper_real_data((start_index, save_path))
-        # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-        #     # use the pool to apply the worker function to each input in parallel
-        #     # pool.map(run_wrapper_real_data, start_indices)     previous pool
-        #     _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
-        #                   total=len(start_indices)))
-        #     pool.close()
-        #     pool.join()
-        #
-        # print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
+        # for start_index in start_indices:
+        #     run_wrapper_real_data((start_index, save_path))
+        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+            # use the pool to apply the worker function to each input in parallel
+            # pool.map(run_wrapper_real_data, start_indices)     previous pool
+            _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
+                          total=len(start_indices)))
+            pool.close()
+            pool.join()
+
+        print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
 
     else:
         folder_name = 'test'

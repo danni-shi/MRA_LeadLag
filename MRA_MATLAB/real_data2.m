@@ -11,7 +11,11 @@ tickers = data_table(:,1);
 data_table(:,1) = [];
 period_length = 50;
 period_retrain = 10; % retrain every 10 trading days
-clustering_path = '../results/real/2023-07-07-16h26min_clustering_full_exp/classes';
+path = '../results/real/2023-07-04-01h04min_clustering_full';
+% use clustering results from here
+clustering_path = sprintf('%s/classes',path);
+% save results to here
+save_path = sprintf('%s/pvCLCL_results',path);
 
 K_range = 1:3;
 sigma_range = 0.2:0.2:2.0;
@@ -29,8 +33,8 @@ nextrainits = 2;
 % Nk = length(K_range);
 % Ns = length(sigma_range);
 
-starting = 2006;
-ending = 2895;
+starting = 2896;
+ending = 3005;
 
 for start_index = starting:period_retrain:ending
     disp(start_index);  
@@ -46,7 +50,8 @@ for start_index = starting:period_retrain:ending
     classes_spc_struct = load(sprintf('%s/%s',clustering_path,clustering_file));
     
     % create folder to store results for each period
-    folder_name = sprintf('../data/pvCLCL_results_exp/start%i_end%i',start_index,end_index);
+    folder_name = sprintf('%s/start%i_end%i',save_path, start_index,end_index);
+
     if exist(folder_name, 'dir')
         rmdir(folder_name,'s');
     end
