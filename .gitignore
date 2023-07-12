@@ -2,6 +2,7 @@
 # https://git-scm.com/docs/gitignore
 plots/
 *.csv
+*.pdf
 .vscode/
 data/*
 # !data/pvCLCL_results/

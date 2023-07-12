@@ -92,30 +92,32 @@ def clustering_real_data(K_range=[1,2,3], assumed_max_lag=5,
     # read data
     end_index = start_index + signal_length
     data = pd.read_csv(data_path, index_col=0).iloc[:, start_index:end_index]
-    if start_index == 5145:
-        data.drop('TIF', axis=0, inplace=True)
+    # if start_index == 5145:
+    #     data.drop('TIF', axis=0, inplace=True)
     if scale_method == 'normalized': # normalized by subtracting the mean and scale by std
         obs = utils.normalize_by_column(np.array(data.T))
     elif scale_method == 'scaled': # scale the observation by std
         obs = np.array(data.T) / np.std(np.array(data.T), axis=0)  # do not subtract the mean
     classes = {f'K{k}': {} for k in K_range} # special key name for MATLAB
-    lag_matrices = {f'K={k}': {} for k in K_range}
+    # lag_matrices = {f'K={k}': {} for k in K_range}
     affinity_matrix, lag_matrix = alignment.score_lag_mat(obs, max_lag=assumed_max_lag,
                                                           score_fn=alignment.alignment_similarity)
     # affinity_matrix = np.exp(affinity_matrix)
+    print(f'start index:{start_index}\npercentage of neg. similarities: {np.sum(affinity_matrix<0)/affinity_matrix.size:.1%}') 
+    affinity_matrix[affinity_matrix<0] = 0
     for k in K_range:
         # SPC clustering and obtain lag_matrix from pairwise CCF
         classes_spc = cluster_SPC(affinity_matrix, k)
         # make sure the labels are continuous starting from 0
         classes_spc = np.unique(classes_spc, return_inverse=True)[1]
         classes[f'K{k}'] = classes_spc
-        lag_matrices[f'K={k}'] = lag_matrix
+        # lag_matrices[f'K={k}'] = lag_matrix
 
     # with open(save_path + f'/classes/start{start_index}end{end_index}.pkl', 'wb') as f:
     #     pickle.dump(classes, f)
     spio.savemat(save_path + f'/classes/start{start_index}end{end_index}.mat', classes)
     with open(save_path + f'/lag_matrices_pairwise/start{start_index}end{end_index}.pkl', 'wb') as f:
-        pickle.dump(lag_matrices, f)
+        pickle.dump(lag_matrix, f)
 
 def clustering_real_data_wrapper(inputs):
     start_index, save_path = inputs
