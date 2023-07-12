@@ -2,17 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import pickle
+import datetime as dt
+import pandas as pd
 import seaborn as sns
 import utils
 
 # add 'src/' to path
 sys.path.append('../src')
 
-start = 4445; end = 5145
+start = 5; end = 5146
 retrain_period = 10
 signal_length = 50
 file_name = f'start{start}end{end}_length{signal_length}_trade{retrain_period}'
-prediction_folder = '2023-07-04-01h04min_clustering_full'
+prediction_folder = '2023-07-07-16h26min_clustering_full_exp'
 with open(f'../results/real/{prediction_folder}/PnL_real_single_weighted/' + file_name + '.pkl',
           'rb') as f:
     PnL_SR = pickle.load(f)
@@ -21,7 +23,10 @@ K_range = [1, 2, 3]
 PnL_sigma_range = np.arange(0.2, 2.0, 0.4)
 PnL_sigma_range = [round(PnL_sigma_range[i], 1) for i in range(len(PnL_sigma_range))]
 models = ['pairwise', 'sync', 'spc-homo', 'het']
-
+# dates
+trading_dates = pd.read_csv('../data/pvCLCL_clean_winsorized.csv',index_col=0).columns
+trading_dates = list(map(lambda x: dt.datetime.strptime(x,'X%Y%m%d'), trading_dates))
+trading_dates = trading_dates[start+signal_length:end-1+signal_length+retrain_period]
 # map return types to labels on plots
 RT_map = {'raw returns': 'RR-Lag',
                    'mkt excess returns': 'MR-Lag',
@@ -104,7 +109,7 @@ def plot_by_return_types():
             cum_pnl = np.cumsum(values)
             SR = returns_dict['annualized SR'][model]
             mean_PnL = np.mean(values)  # include the first few days when no trading occurs
-            ax.plot(start + np.arange(len(values)), cum_pnl,
+            ax.plot(trading_dates, cum_pnl,
                     label=f'{model}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
                     color=color_map[model])
             ax.legend(loc='lower right')

@@ -11,7 +11,7 @@ tickers = data_table(:,1);
 data_table(:,1) = [];
 period_length = 50;
 period_retrain = 10; % retrain every 10 trading days
-path = '../results/real/2023-07-04-01h04min_clustering_full';
+path = '../results/real/full_non-negative_affinity';
 % use clustering results from here
 clustering_path = sprintf('%s/classes',path);
 % save results to here
@@ -33,8 +33,9 @@ nextrainits = 2;
 % Nk = length(K_range);
 % Ns = length(sigma_range);
 
-starting = 2896;
-ending = 3005;
+starting = 3006;
+ending = 3505;
+% ending = 5146;
 
 for start_index = starting:period_retrain:ending
     disp(start_index);  

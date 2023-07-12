@@ -615,14 +615,14 @@ if __name__ == '__main__':
     # Use the relevant data and lag prediction for different experiment settings
     data_path = '../data/pvCLCL_clean_winsorized.csv'
     df_returns = pd.read_csv(data_path, index_col=0)  # data
-    prediction_path = '../results/real/2023-07-04-01h04min_clustering_full'
+    prediction_path = '../results/real/2023-07-07-16h26min_clustering_full_exp'
     PnL_folder_name = 'PnL_real_single_weighted'
     # range of K and sigma we run grid search on
     K_range = [1, 2, 3]
     sigma_range = np.arange(0.2, 2.1, 0.2)
     # start, ending, training data length, period of retrain
-    start = 4445
-    end = 5145
+    start = 5
+    end = 5146
     retrain_period = 10
     signal_length = 50
     start_indices = range(start, end, retrain_period)

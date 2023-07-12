@@ -467,7 +467,7 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
     with open(save_path + f'/lag_matrices_pairwise/start{start_index}end{end_index}.pkl', 'rb') as f:
         lag_matrices_dict = pickle.load(f)
 
-    for k in tqdm(K_range):
+    for k in K_range:
         estimates[f'K={k}'] = {}
         lag_vectors[f'K={k}'] = {}
         lag_matrices[f'K={k}'] = {}
@@ -610,7 +610,7 @@ def run_wrapper_real_data(inputs):
 if __name__ == "__main__":
     real_data = True
     if real_data:
-        save_path = '../results/real/2023-07-04-01h04min_clustering_full'
+        save_path = '../results/real/2023-07-07-16h26min_clustering_full_exp'
         # inherit parameters from clustering experiments
         params_save_dir = f'{save_path}/params_clustering.json'
         with open(params_save_dir, 'r') as json_file:
