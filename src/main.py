@@ -5,6 +5,7 @@ Compare the accuracy of lag recovery between the two methods
 
 import numpy as np
 import pickle
+import argparse
 
 import pandas as pd
 from tqdm import tqdm
@@ -446,8 +447,8 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
     # read data
     end_index = start_index + signal_length
     data = pd.read_csv(data_path, index_col=0).iloc[:, start_index:end_index]
-    if start_index == 5145:
-        data.drop('TIF', axis=0, inplace=True)
+    # if start_index == 5145:
+    #     data.drop('TIF', axis=0, inplace=True)
     ticker = data.index
     dates = data.columns
     if scale_method == 'normalized':  # normalized by subtracting the mean and scale by std
@@ -568,7 +569,8 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
 
 
 # set main() run parameters here
-def run_wrapper(round, save_path):
+def run_wrapper(inputs):
+    round, save_path = inputs
     # sigma_range = np.arange(0.1, 2.1, 0.1)
     # K_range = [2, 3, 4]
     sigma_range = np.arange(0.5, 2, 1)
@@ -609,49 +611,72 @@ def run_wrapper_real_data(inputs):
 
 
 if __name__ == "__main__":
-    real_data = True
+    # argparser
+    parser = argparse.ArgumentParser(description="main.")
+    parser.add_argument("--start", default=5, type=int)
+    parser.add_argument("--end", default=5145, type=int)
+    parser.add_argument("--retrain-period", default=10, type=int)
+    parser.add_argument("--save-path", default='../results/real/test', type=str)
+    parser.add_argument("--real-data", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--parallelize", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--folder-name", default='test', type=str)
+    parser.add_argument("--num-rounds", default=4, type=int)
+
+    args = parser.parse_args()
+
+    # set the range and retrain period of time series data
+
+    parallelize = args.parallelize
+    real_data = args.real_data
+
+
     if real_data:
-        save_path = '../results/real/2023-07-07-16h26min_clustering_full_exp'
         # inherit parameters from clustering experiments
-        params_save_dir = f'{save_path}/params_clustering.json'
-        with open(params_save_dir, 'r') as json_file:
-            params = json.load(json_file)
+        # params_save_dir = f'{save_path}/params_clustering.json'
+        # with open(params_save_dir, 'r') as json_file:
+        #     params = json.load(json_file)
         # start = params['start']
         # end = params['end']
         # retrain_period = params['retrain_period']
-        start = 1005
-        end = 4445
-        retrain_period = 10
+        save_path = args.save_path
 
-
+        start = args.start
+        end = args.end
+        retrain_period = args.retrain_period
         start_indices = range(start, end, retrain_period)
-        inputs = list(zip(start_indices,repeat(save_path)))
+
         start_time = time.time()
 
-        # map inputs to functions
-        # for start_index in start_indices:
-        #     run_wrapper_real_data((start_index, save_path))
-        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-            # use the pool to apply the worker function to each input in parallel
-            # pool.map(run_wrapper_real_data, start_indices)     previous pool
-            _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
-                          total=len(start_indices)))
-            pool.close()
-            pool.join()
+        if parallelize:
+            inputs = list(zip(start_indices, repeat(save_path)))
+            # map inputs to functions
+            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+                # use the pool to apply the worker function to each input in parallel
+                _ = list(tqdm(pool.imap(run_wrapper_real_data, inputs),
+                              total=len(start_indices)))
+                pool.close()
+                pool.join()
+        else:
+            for start_index in tqdm(start_indices):
+                run_wrapper_real_data((start_index, save_path))
 
         print(f'time taken to run {len(start_indices)} predictions: {time.time() - start_time}')
 
     else:
-        folder_name = 'test'
+        folder_name = args.folder_name
         save_path = utils.save_to_folder('../results/synthetic', folder_name)
         # remember to untick 'Run with Python console' in config
-        rounds = 4
-        inputs = range(1, 1 + rounds)
+        rounds = args.num_rounds
+        round_range = range(1, 1 + rounds)
+
         start_time = time.time()
-        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-            # use the pool to apply the worker function to each input in parallel
-            pool.starmap(run_wrapper, zip(inputs, repeat(save_path)))
-            pool.close()
+        if parallelize:
+            inputs = list(zip(round_range, repeat(save_path)))
+            with multiprocessing.Pool(processes=np.min(multiprocessing.cpu_count(),rounds)) as pool:
+                # use the pool to apply the worker function to each input in parallel
+                _ = list(tqdm(pool.imap(run_wrapper, inputs),
+                              total=rounds))
+                pool.close()
         print(f'time taken to run {rounds} rounds: {time.time() - start_time}')
 
         # run single thread for debugging

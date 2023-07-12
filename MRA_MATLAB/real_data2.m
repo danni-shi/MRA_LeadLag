@@ -33,8 +33,8 @@ nextrainits = 2;
 % Nk = length(K_range);
 % Ns = length(sigma_range);
 
-starting = 3006;
-ending = 3505;
+starting = 3506;
+ending = 4505;
 % ending = 5146;
 
 for start_index = starting:period_retrain:ending
