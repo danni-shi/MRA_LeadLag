@@ -465,7 +465,8 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
     #     classes_spc_dict = pickle.load(f)
     classes_spc_dict = spio.loadmat(save_path + f'/classes/start{start_index}end{end_index}.mat')
     with open(save_path + f'/lag_matrices_pairwise/start{start_index}end{end_index}.pkl', 'rb') as f:
-        lag_matrices_dict = pickle.load(f)
+        # lag_matrices_dict = pickle.load(f)
+        lag_matrix = pickle.load(f)
 
     for k in K_range:
         estimates[f'K={k}'] = {}
@@ -475,7 +476,7 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
         # SPC clustering and obtain lag_matrix from pairwise CCF
         # classes_spc, lag_matrix = cluster_SPC(obs_scaled, k, assumed_max_lag)
         classes_spc = classes_spc_dict[f'K{k}'].flatten()
-        lag_matrix = lag_matrices_dict[f'K={k}']
+        # lag_matrix = lag_matrices_dict[f'K={k}']
         # evaluate models pairwise and sync
         results1 = eval_models(
             lag_matrix=lag_matrix,
