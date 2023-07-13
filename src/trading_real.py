@@ -369,9 +369,9 @@ def trading_single(df_returns,
                    lag_vectors, estimates, k, sigma,
                    model, trading_period_start, trading_period_end,
                    assumed_max_lag, hedge,  **trading_kwargs):
-    if ((trading_period_start, trading_period_end) == (5145,5195))\
-            or (trading_period_start, trading_period_end) == (5195,5205):
-       df_returns = df_returns.drop('TIF', axis=0)
+    # if ((trading_period_start, trading_period_end) == (5145,5195))\
+    #         or (trading_period_start, trading_period_end) == (5195,5205):
+    #    df_returns = df_returns.drop('TIF', axis=0)
     # load estimates of lags
     lag_vec = lag_vectors[f'K={k}'][f'sigma={sigma:.2g}'][model]['row mean']
 
@@ -610,12 +610,16 @@ def string_to_int(string):
     # string format '(x,y)'
     l = string.split(',')
     return int(l[0][1:]), int(l[1][:-1])
+
+
+
 if __name__ == '__main__':
+    
     warnings.filterwarnings(action='ignore', message='Mean of empty slice')
     # Use the relevant data and lag prediction for different experiment settings
     data_path = '../data/pvCLCL_clean_winsorized.csv'
     df_returns = pd.read_csv(data_path, index_col=0)  # data
-    prediction_path = '../results/real/2023-07-07-16h26min_clustering_full_exp'
+    prediction_path = '../results/real/full_non-negative_affinity'
     PnL_folder_name = 'PnL_real_single_weighted'
     # range of K and sigma we run grid search on
     K_range = [1, 2, 3]
@@ -628,44 +632,44 @@ if __name__ == '__main__':
     start_indices = range(start, end, retrain_period)
     models = ['pairwise', 'sync', 'spc-homo', 'het']
     # grid search on K and sigma for all models based on in-sample performance
-    # df_results = best_K_and_sigma_for_all(df_returns,
-    #                                       prediction_path,
-    #                          K_range, sigma_range,
-    #                          models,
-    #                          start_indices, signal_length,
-    #                                       assumed_max_lag=2,
-    #                          criterion='raw returns')
-    #
-    # folder_path = prediction_path + '/' + PnL_folder_name + '/'
-    # # Check if the folder exists
-    # if not os.path.exists(folder_path):
-    #     # Create the folder
-    #     os.makedirs(folder_path)
-    # best_K_sigma_path = folder_path + 'best_k_sigma.csv'
-    # df_results.to_csv(best_K_sigma_path)
-    # df_results = pd.read_csv(best_K_sigma_path, index_col=0).applymap(eval)
-    #
-    # # ###--------------------- Trading by sliding window ----------------------------###
-    # for row_num, index in tqdm(enumerate(df_results.index)):
-    #     train_period_start, train_period_end = string_to_int(index)
-    #     #train_period_start, train_period_end = index
-    #     trading_results_models = {}
-    #     for col_num, model in enumerate(df_results.columns):
-    #         K, sigma = df_results.iloc[row_num, col_num]
-    #
-    #         trading = trading_real_data(data_path, prediction_path, K, sigma, model,
-    #                           train_period_start=train_period_start,
-    #                           train_period_end=train_period_start + signal_length,
-    #                           out_of_sample=True,
-    #                           trading_period=retrain_period,
-    #                           assumed_max_lag=2,
-    #                           hedge=True)
-    #         trading_results_models[model] = trading
-    #
-    #     file_name = f'start{train_period_start}end{train_period_end}trade{retrain_period}'
-    #
-    #     with open(folder_path + file_name + '.pkl', 'wb') as f:
-    #         pickle.dump(trading_results_models, f)
+    df_results = best_K_and_sigma_for_all(df_returns,
+                                          prediction_path,
+                             K_range, sigma_range,
+                             models,
+                             start_indices, signal_length,
+                                          assumed_max_lag=2,
+                             criterion='raw returns')
+    
+    folder_path = prediction_path + '/' + PnL_folder_name + '/'
+    # Check if the folder exists
+    if not os.path.exists(folder_path):
+        # Create the folder
+        os.makedirs(folder_path)
+    best_K_sigma_path = folder_path + 'best_k_sigma.csv'
+    df_results.to_csv(best_K_sigma_path)
+    df_results = pd.read_csv(best_K_sigma_path, index_col=0).applymap(eval)
+    
+    # ###--------------------- Trading by sliding window ----------------------------###
+    for row_num, index in tqdm(enumerate(df_results.index)):
+        train_period_start, train_period_end = string_to_int(index)
+        #train_period_start, train_period_end = index
+        trading_results_models = {}
+        for col_num, model in enumerate(df_results.columns):
+            K, sigma = df_results.iloc[row_num, col_num]
+    
+            trading = trading_real_data(data_path, prediction_path, K, sigma, model,
+                              train_period_start=train_period_start,
+                              train_period_end=train_period_start + signal_length,
+                              out_of_sample=True,
+                              trading_period=retrain_period,
+                              assumed_max_lag=2,
+                              hedge=True)
+            trading_results_models[model] = trading
+    
+        file_name = f'start{train_period_start}end{train_period_end}trade{retrain_period}'
+    
+        with open(folder_path + file_name + '.pkl', 'wb') as f:
+            pickle.dump(trading_results_models, f)
 
     ###---------------- Concatenate segments of trading results together ----------------------###
     PnL_concat_dict = {}

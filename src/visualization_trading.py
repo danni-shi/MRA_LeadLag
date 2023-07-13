@@ -14,7 +14,7 @@ start = 5; end = 5146
 retrain_period = 10
 signal_length = 50
 file_name = f'start{start}end{end}_length{signal_length}_trade{retrain_period}'
-prediction_folder = '2023-07-07-16h26min_clustering_full_exp'
+prediction_folder = 'full_non-negative_affinity'
 with open(f'../results/real/{prediction_folder}/PnL_real_single_weighted/' + file_name + '.pkl',
           'rb') as f:
     PnL_SR = pickle.load(f)
