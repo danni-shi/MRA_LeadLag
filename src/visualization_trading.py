@@ -36,10 +36,10 @@ RT_map = {'raw returns': 'RR-Lag',
                    }
 
 # labels and formats
-labels = {'pairwise': 'SPC-Pairwise',
-          'sync': 'SPC-Sync',
-          'spc-homo': 'SPC-IVF',
-          'het': 'IVF',}
+labels = {'pairwise': 'S-Pairwise',
+          'sync': 'S-Sync',
+          'spc-homo': 'S-IVFhomo',
+          'het': 'I-IVFhet',}
 color_labels = labels.keys()
 col_values = sns.color_palette('Set2')
 color_map = dict(zip(color_labels, col_values))
@@ -97,7 +97,7 @@ def plot_by_return_types():
             figsize=(10, 5),
             squeeze=True, sharey=True)
         ax.set_title(f'Cumulative {label} optimized over K range {list(K_range)} and \nsigma range {PnL_sigma_range}')
-        ax.set_xlabel('Days')
+        ax.set_xlabel('Date')
         ax.set_ylabel('PPD')
         returns_dict = {metric: {model: PnL_SR[model][metric][return_type] \
                                  for model in models} \
@@ -110,15 +110,43 @@ def plot_by_return_types():
             SR = returns_dict['annualized SR'][model]
             mean_PnL = np.mean(values)  # include the first few days when no trading occurs
             ax.plot(trading_dates, cum_pnl,
-                    label=f'{model}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
+                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
                     color=color_map[model])
             ax.legend(loc='lower right')
             ax.grid(visible=True)
         plt.savefig(results_save_dir + f'/{label}')
 
-# change folder name accroding to experiment specications
-folder_name = f'{prediction_folder}/trading_OS_PnL_length50_retrain10_centred_optimized'
-results_save_dir = utils.save_to_folder('../plots', folder_name)
-plot_by_return_types()
+def plot_MR_RR():
+    fig, axes = plt.subplots(
+        2,1,
+        figsize=(10, 10),
+        squeeze=False, sharey=True)
+    for i, return_type in enumerate(['raw returns', 'mkt excess returns']):
+        ax = axes[i,0]
+        ax.set_title(return_type)
+        ax.set_xlabel('Date')
+        ax.set_ylabel('PPD')
+        returns_dict = {metric: {model: PnL_SR[model][metric][return_type] \
+                                 for model in models} \
+                        for metric in ['PnL', 'annualized SR']}
 
+        for model, values in returns_dict['PnL'].items():
+            # cumsum evaluate the returns of a portfolio of a constant volume
+            values[np.isnan(values)] = 0
+            cum_pnl = np.cumsum(values)
+            SR = returns_dict['annualized SR'][model]
+            mean_PnL = np.mean(values)  # include the first few days when no trading occurs
+            ax.plot(trading_dates, cum_pnl,
+                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
+                    color=color_map[model])
+            ax.legend(loc='lower right')
+            ax.grid(visible=True)
+        plt.savefig(results_save_dir + f'/MR_RR.png')
+
+# change folder name accroding to experiment specications
+# folder_name = f'{prediction_folder}/trading_OS_PnL_length50_retrain10_centred_optimized'
+# results_save_dir = utils.save_to_folder('../plots', folder_name)
+results_save_dir = '../plots/2023-07-13-18h27min_full_non-negative_affinity/trading_OS_PnL_length50_retrain10_centred_optimized'
+# plot_by_return_types()
+plot_MR_RR()
 

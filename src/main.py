@@ -671,7 +671,7 @@ if __name__ == "__main__":
         start_time = time.time()
         if parallelize:
             inputs = list(zip(round_range, repeat(save_path)))
-            with multiprocessing.Pool(processes=np.min(multiprocessing.cpu_count(),rounds)) as pool:
+            with multiprocessing.Pool(processes=rounds) as pool:
                 # use the pool to apply the worker function to each input in parallel
                 _ = list(tqdm(pool.imap(run_wrapper, inputs),
                               total=rounds))
