@@ -9,4 +9,6 @@ data/*
 venv*/
 private/
 results/
-ICAIF/
+ICAIF*
+
+
