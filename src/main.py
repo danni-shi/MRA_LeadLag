@@ -571,16 +571,15 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
 # set main() run parameters here
 def run_wrapper(inputs):
     round, save_path = inputs
-    # sigma_range = np.arange(0.1, 2.1, 0.1)
     # K_range = [2, 3, 4]
-    sigma_range = np.arange(0.5, 2, 1)
-    K_range = [2,3]
+    sigma_range = np.arange(0.1, 2.1, 0.1)
+    K_range = [1,2,3]
     max_shift = 2
     data_path = '../data/data500_shift2_pvCLCL_init2_set1/'
     run(sigma_range=sigma_range, K_range=K_range,
         max_shift=max_shift,data_path=data_path,
         save_path=save_path,
-        test=False, return_lag_mat=True,
+        test=False, return_lag_mat=False,
         return_signals=True, round=round)
 
 

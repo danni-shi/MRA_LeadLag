@@ -1,0 +1,485 @@
+%%
+%% This is file `sample-sigconf.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigconf')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigconf.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass
+%% command.
+%%
+%% For submission and review of your manuscript please change the
+%% command to \documentclass[manuscript, screen, review]{acmart}.
+%%
+%% When submitting camera ready or to TAPS, please change the command
+%% to \documentclass[sigconf]{acmart} or whichever template is required
+%% for your publication.
+%%
+%%
+\documentclass[sigconf]{acmart}
+
+%%
+%% Added by Ed:
+\usepackage{eucal}
+\usepackage{bbm}
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\max}{max}
+
+%%%%%%%%%%%%%%%%%%% to be removed in the end %%%%%%%%%%%%%%%%%
+\definecolor{colour1}{RGB}{166,206,227}
+\definecolor{colour2}{RGB}{31,120,180}
+\definecolor{colour3}{RGB}{178,55,250} % purple
+\definecolor{colour4}{RGB}{51,160,44}
+
+\newcounter{noteMCctr} \setcounter{noteMCctr}{1} \newcommand{\MC}[1]{\textcolor{colour3}{{{Mihai: \#\arabic{noteMCctr}: }}#1} \addtocounter{noteMCctr}{1}}
+
+\newcounter{noteZZctr} \setcounter{noteZZctr}{1}
+\newcommand{\DS}[1]{\textcolor{red}{{{Danni: \#\arabic{noteZZctr}: }}#1} \addtocounter{noteZZctr}{1}}
+\newcounter{noteXXctr} \setcounter{noteXXctr}{1}
+\newcommand{\JPC}[1]{\textcolor{blue}{{{Jan: \#\arabic{noteXXctr}: }}#1} \addtocounter{noteXXctr}{1}}
+%%%%%%%%%%%%%%%%%%% end %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmcopyright}
+\copyrightyear{2023}
+\acmYear{2023}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[Conference acronym 'XX]{Make sure to enter the correct
+  conference title from your rights confirmation email}{June 03--05,
+  2018}{Woodstock, NY}
+%%
+%%  Uncomment \acmBooktitle if the title of the proceedings is different
+%%  from ``Proceedings of ...''!
+%%
+%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
+%%  June 03--05, 2018, Woodstock, NY}
+\acmPrice{15.00}
+\acmISBN{978-1-4503-XXXX-X/18/06}
+
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-*-biblatex.tex files for templates showcasing
+%% the biblatex styles.
+%%
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Application of Invariant Feature-Based Multi-Reference Alignment on Lead-Lag Detection}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Danni Shi}
+\email{danni.shi@eng.ox.ac.uk}
+% \orcid{1234-5678-9012}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+
+\author{Mihai Cucuringu}
+\email{mihai.cucuringu@stats.ox.ac.uk}
+\affiliation{%
+  \institution{Department of Statistics, University of Oxford}
+  \city{Oxford}
+  \country{UK}}
+\affiliation{%
+  \institution{The Alan Turing Institute}
+  \city{London}
+  \country{UK}}
+
+\author{Jan-Peter Calliess}
+\email{jan-peter.calliess@oxford-man.ox.ac.uk}
+\affiliation{%
+  \institution{University of Oxford}
+  \city{Oxford}
+  \country{UK}
+}
+
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+ In time series analysis, numerous methods have been developed to detect, measure and apprehend lead-lag relationships between variables, which refers to the time-delay of patterns in a time series relative to the other. Often, the extent of lead-lag between two time series is directly measured with a similarity metric. This approach suffers inconsistency and inaccuracy, especially under high-noise regimes. 
+
+This work represents several frameworks of Multireference alignment (MRA), the estimation of a unified, de-noised latent signal from a population of time series with linearly-shifted and noisy patterns, and their application on lead-lag detection. The recovered latent signal is treated as the reference vector whose lead-lag metric is calculated against 
+other time series. The relative lead-lag between two actual time series is then obtained as the difference between their lags against the reference vector.  Results show that models with MRA-induced intermediates outperform the simplistic models relying on pairwise similarity in predicting the relative shifts between time series when the signal-to-noise ratio (SNR) is low. The effect of clustering the time series advancing the recovery of the latent signals is also investigated
+
+The results of lead-lag detection can be used on trading stock returns. We developed a trading framework that utilises the relative shift estimations to construct financial signals from the leading time series and trade on multiple portfolios of the lagging time series. 
+\end{abstract}
+
+%%
+%% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+%% Please copy and paste the code instead of the example below.
+%%
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10010520.10010553.10010562</concept_id>
+  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010575.10010755</concept_id>
+  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010553.10010554</concept_id>
+  <concept_desc>Computer systems organization~Robotics</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003033.10003083.10003095</concept_id>
+  <concept_desc>Networks~Network reliability</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Redundancy}
+\ccsdesc{Computer systems organization~Robotics}
+\ccsdesc[100]{Networks~Network reliability}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{High-dimensional time series, lead-lag, clustering, financial markets}
+%% A "teaser" image appears between the author and affiliation
+%% information and the body of the document, and typically spans the
+%% page.
+
+\received{20 February 2007}
+\received[revised]{12 March 2009}
+\received[accepted]{5 June 2009}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+
+
+\section{Introduction}
+
+\subsection{Background}
+Time series forecasting is a major topic in data science and has been extensively researched from multiple perspectives. Forecasting financial time series is especially challenging due to low SNR and the deficiency of auto-correlation. Yet, in the financial market, it has been observed that the prices of certain groups of assets respond to events and factors quicker than others. In multivariate time series models, market factors can create similar patterns of change in the financial time series of different assets, each with a different time delay. This is what we call a lead-lag structure amongst the time series variables. We aim to construct a measure that estimates the extent and length of lead-lag between two stocks. In this paper, the extent of lead-lag is represented as the maximum cross-correlation between two time series up to a shift. The corresponding length of lead-lag is the number of timescale shifts (as we primarily works with discrete-time data in finance) to achieve the maximum cross-correlation. 
+
+Current methods of lead-lag detection often rely on computing a lead-lag score between a pair of time series (some refs and descriptions here), which are direct and effective in some use cases. However, several problems arise with this approach:
+\begin{itemize}
+\item Non-robust: At low SNR, pairwise measurement is significantly interfered by the noise in the data and hence become inaccurate
+\item Inconsistent: Pairwise lag predictions need to be synchronized for reliable applications. However, the lag between a pair of time series may not agree with the others. \footnote{For example, estimations may show that variable $X$ and $Y$ each leads variable $Z$ by 1 day, but that $X$ lags $Y$ by 1 day too.}
+\item Computationally expensive: The computation of the pairwise metric of $N$ time series has a complexity $\mathcal{O}(N^2)$, making it non-scalable to large datasets.
+\end{itemize}
+
+Some algorithms aim to address the inconsistencies from pairwise measurements by forming a unifying vector of ranking and/or shifts (refs here). The recovered vector can be seen as a low-dimensional representation that closely summarise the original pairwise shift matrix. An SVD-based algorithm is shown to recover the ranking of a group of pairwise measurements with efficiency and robustness \cite{synchronization_SVD}.
+
+MRA is studied in multiple scientific domains such as structural biology, radar and image processing where observations are abundant yet noisy and cyclically shifted. Some methods tap on the signal features invariant under cyclic shifts and the Central Limit Theorem to construct an optimization problem\cite{Boumal2017Oct}. The problem converges to an estimated latent signal and was shown to perform well at high noise levels as long as a sufficient number of observations are available. 
+
+\subsection{Our contributions}
+    
+In this paper, we propose a framework to estimate the relative shifts of multiple time series. We model financial time series in the same universe as the noisy and linearly shifted copies of several latent source signals. Clustering is performed to identify the time series coming from the same source signal. After that, we investigate the accuracy and limitations of 3 different MRA methods in terms of signal recovery and lead-lag detection. This part is implemented on synthetic data where the ground truths of latent signal and shifts are known. Furthermore, we separate the time series into groups of the same shift and devise a trading strategy that derive financial signals from the leading groups and trade on a basket of lagging stocks. To demonstrate the application in financial markets, we implement the clustering $\rightarrow$ lead-lag detection $\rightarrow$ trading pipeline on a dataset of 695 US equities' returns. With comparison to the baseline pairwisely evaluated model, the 3 MRA-based methods exhibit strong ability to estimate lead-lag relationships at high noise regimes and produce more significant portfolio returns from the trading strategy.
+
+
+
+\section{Related work}
+
+\subsection{Lead-lag detection in finance}
+
+\subsection{Multireference alignment \&   group synchronization from pairwise measurements}
+
+RowSums
+
+SVD-Rank (translation syncronization)
+
+A few other references to the literature on ranking from pairwise comparisons 
+\MC{todo}
+
+
+
+
+\section{Multireference Alignment}
+MRA refers to the problem of estimating a signal from multiple noisy and translated copies of itself. The problem is formulated as follows:
+Let $x \in \mathbb{R}^T$ be the unknown factor series with length $T$ and let $R_r$ be the cyclic shift operator: $(R_rx)[n] = x[(n-r) \mod T]$. We have $N$ time series $y_i \in \mathbb{R}^L$ as our observations:
+$$y_i = R_{r_i}x + \epsilon_i, \hspace{.5cm} i = 1,...N$$
+where $\epsilon_i \sim \mathcal{N}(\sigma^2I)$ is i.i.d white Gaussian noise.\\
+Our goal here is to estimate $x$.
+\subsection{Synchronization}
+\label{sec:sync}
+A natural approach to the inverse problem $\{y_i\}_{i=1}^N \rightarrow x$ is to estimate the lags $r_1,...,r_N$. Then, we can obtain the consistent estimator of $x$ as the average of the aligned versions of $y_i$
+$$\Tilde{x} = \frac{1}{N}\displaymode\sum_{i=1}^N R_{-r_i}y_i$$
+The lag vector $\mathbf{r}$ is often not readily available. Given a set of pairwise lead-lag estimations $r_i-r_j$, the goal is to determine a single vector $\mathbf{r}$ up to a global shift. This process is termed synchronization. We investigate two methods in our experiments:
+\begin{itemize}
+\item Row Mean: Compute the average of each row in the lag matrix $L$ we obtain 
+$$\hat{r_i} = \frac{1}{N}\displaymode\sum_{i=1}^N (\widehat{r_i-r_j}) $$
+\item SVD-NRS\footnote{Singular Value Decomposition-Normalized Ranking and Synchronization}: A spectral method that recovers the rank and scores of $N$ items in a measurement graph. The design deals with non-complete graphs with skewed degree distribution\cite{synchronization_SVD}.
+
+\end{itemize}
+\subsection{Invariant-Feature Method (IVF)}
+\label{sec:IVF}
+We implement the methodological ideas from \cite{heteroMRA} and \cite{Bendory2018Feb} of MRA which directly estimate the signal from their cyclically shifted, noisy observations. Let us begin by introducing the homogeneous MRA model. \\
+We denote by $F(\cdot)$ the discrete Fourier transform (DFT) operator.
+$$F(x)[k] = \displaymode \sum_{l=0}^{L-1} x[n]e^{-2\pi ink/L}$$
+Also,
+$$F(R_rx)[k] = F(x)[k]e^{-2\pi irk/L}$$
+It can be shown that the mean, power spectrum and bispectrum of $x$ are invariant under cyclic shifts \footnote{
+$$\mu_x = F(x)[0]/L = F(R_rx))[0]/L = \mu_{R_rx} $$
+    
+
+    $$P_x[k] := F(x)[k] \overline{F(x)[k]} = F(x)[k]e^{-2\pi irk/L} \overline{F(x)[k]}e^{2\pi irk/L} $$
+    $$= F(R_rx))[k] \overline{F(R_rx))[k]} = P_{R_rx}[k]$$
+
+    $$B_x[k,l] := F(x)[k] \overline{F(x)[l]}F(x)[l-k] $$ 
+    $$= F(R_rx))[k] \overline{F(R_rx))[l]}F(R_rx))[l-k] = B_{R_rx}[k,l]$$
+}:
+
+\begin{equation}
+    \mu_x  = \mu_{R_rx}
+\end{equation}
+\begin{equation}
+    P_x[k] = F(x)[k] \overline{F(x)[k]} = P_{R_rx}[k]
+\end{equation}
+\begin{equation}
+    B_x[k,l] = F(x)[k] \overline{F(x)[l]}F(x)[l-k] = B_{R_rx}[k,l]
+\end{equation}
+
+The sample means of the invariant features converge to fixed points as $N \rightarrow \infty$. It can be shown that:
+
+\begin{equation}
+    M_1 := \frac{1}{N}\displaymode\sum_{j=1}^{N}\mu_{y_j} \rightarrow \mu_x
+\end{equation}
+\begin{equation}
+    M_2 := \frac{1}{N}\displaymode\sum_{j=1}^{N}P_{y_j} \rightarrow P_x + \sigma^2L\mathbf{1}
+\end{equation}
+\begin{equation}
+    M_3 := \frac{1}{N}\displaymode\sum_{j=1}^{N}B_{y_j} \rightarrow B_x + \mu_x\cdot\sigma^2L^2A
+\end{equation}
+where
+$A \in \mathbb{R}^{L\times L} = 
+    \begin{pmatrix}
+    3 & 1 & \hdots & 1 \\
+    1 & 0 & \hdots & 0 \\
+    \vdots & \vdots &  \ddots  & \vdots \\
+    1 & 0     &\hdots &  0  \\
+    \end{pmatrix}.$\\
+
+    In the heterogeneous case of MRA, we have instead $K$ signals $x_1, ..., x_K \in \mathbb
+    {R}^T$ and the observations now take the form:
+    $$y_j = R_{r_j}x_{v_j} + \epsilon_j, \hspace{.5cm} j = 1,...N$$
+    where $v_j$ denotes the class membership of the $j$th signal and is unknown. It is assumed $v_j$ follows an i.i.d distribution $w \in \Delta_K$, where $w[k]$ is the proportion of measurements which comes from class $k$. If the mixing probabilities of classes of observations are often unknown before the experiments, the algorithm allows us to estimate $w[k]$ alongside $x_k$ in a single-pass approach. Now the expectation estimators become:
+    \begin{equation}
+    M_1 := \frac{1}{N}\displaymode\sum_{j=1}^{N}w[v_j]\mu_{y_j} \rightarrow \displaymode\sum_{k=1}^{K}w[k]\mu_{x_k}
+\end{equation}
+    \begin{equation}
+    M_2 \rightarrow \displaymode\sum_{k=1}^{K}w[k]P_{x_k} + \sigma^2L\mathbf{1}
+\end{equation}
+\begin{equation}
+    M_3 \rightarrow \displaymode\sum_{k=1}^{K}w[k](B_{x_k} + \mu_{x_k}\cdot\sigma^2L^2A)
+\end{equation}
+
+With these defined we can set up a least-square problem to find the optimal $\Tilde{x}_k's$ and $w$.
+\begin{equation}
+    \label{objective}
+    \begin{split}
+        \min_{\Tilde{x}_1,...,\Tilde{x}_K, 
+        \Tilde{w}} &|L\sum_{k=1}^K\Tilde{w}[k]\mu_{\Tilde{x}_k}-LM_1|^2\\
+        +&\frac{1}{\sigma^2L +2P}||\sum_{k=1}^K\Tilde{w}[k]P_{\Tilde{x}_k} + \sigma^2L\mathbf{1}-M_2||^2_2 \\
+        +&\frac{1}{\sigma^4L^2 + 3P^2}||\sum_{k=1}^K\Tilde{w}[k]B_{\Tilde{x}_k}+M_1\cdot \sigma^2L^2A-M_3||^2_F
+    \end{split}
+\end{equation}
+where we assume the power spectra of the unknown signals are close to $P$. In the implementation, we approximate $P$ as $L$. We also substitute $M_1, M_2, M_3$ by estimates from the data if $w$ is given. Since the terms in \ref{objective} are invariant under translation, the solutions $\Tilde{x_k}$ are unique up to an unknown translation.\\
+
+The original method aims to recover the original signal from cyclically shifted copies of noisy observations while the financial data we work with contains non-cyclic shifts. We make an educated assumption that the shifts are small compared to the length of the time series. Therefore, most part of the time series still agrees with the cyclically shifted version. Our experiments with synthetic data show that the estimated signal is accurate enough for subsequent analysis. 
+\section{Lead-Lag Detection Based on Cross-Correlation}
+The correlation of two variables measures the tendency of their values to change in the same direction. For time series variables $X_t, Y_t$, the lag-$n$ cross-correlation can be seen as the correlation between the $n$-shifted version of $X_t$ and $Y_t$, i.e. $Corr(X_{t+n},Y_t)$. For time series of length $T$, we compute the empirical cross-correlation as follows:
+
+$$\widehat{Corr(X,Y)}[n]  = \frac{\sum_{l=0}^{L-1}X[(l+n)\mod T] \cdot Y[l]}{|X||Y|}$$
+
+\subsection{Pairwise Lag Measurement}
+\label{sec:pair}
+We say that $X_t$ lags/leads $Y_t$ by $n$ timescales if $X_{t+n}/X_{t-n}$ and $Y_t$ are highly correlated. Therefore, suppose there exists a lead-lag relationship between $X_t, Y_t$ and noise is negligible, we can find the optimal estimation of lead-lag between them as:
+$$\mathcal{L}(X_t,Y_t)=\argmax_n \widehat{Corr(X,Y)}[n]$$
+For a set of time series data $\{X_n\}_{n=1}^N \in \mathbb{R}^T$ where lead-lag relationships exist, we can construct a pairwise lag matrix $L$ such that 
+$$L_{ij} = \mathcal{L}(X_i,X_j), \hspace{.5cm} \text{for} \hspace{.2cm} i,j=1,...,N$$
+Note that $L$ is a skew-symmetric matrix, i.e. $L^T = -L$
+\subsection{Relative Lag Measurement with a Reference Signal}
+\label{sec:rel_lag}
+Assume now we have obtained a reference variable $\Tilde{X}_t$ which leads or lags every element in $\{X_n\}_{n=1}^N$, we can construct a relative lag vector $l$ such that 
+$$r_{i} = \mathcal{L}(X_i,\Tilde{X})\hspace{.5cm} \text{for} \hspace{.2cm} i=1,...,N$$
+The lag vector can be subsequently transformed into a pairwise lag matrix, if needed, through simple matrix operations:
+$$L = \mathbf{r}\cdot \mathbf{1}^T - \mathbf{1}\cdot \mathbf{r}^T$$
+where $\mathbf{1} \in \mathbb{R}^T = (1,...,1)^T$
+
+\section{Clustering}
+Clustering is an essential tool in financial time series analysis. Not only can we simplify the problems by turning the data into classes of homogeneous properties, but meaningful financial insights can often be derived from the clustering results. We evaluate the ability of the IVF MRA method to cluster observations generated by different source signals and compare the result against a standard clustering method. \\
+Since the goal is to identify observations with similar patterns with lead-lag, let us define a shift-invariant similarity metric for two times series $X,Y$ of length $T$ as the highest lag-$n$ cross-correlation for any $1\leq n \leq T$.
+\begin{equation}
+\label{eqn：similarity}
+    \mathcal{S}(X,Y) = \max_{n=1,...,T} Corr(X,Y)[n]
+\end{equation}
+\subsection{IVF-1NN}
+\label{sec:IVF-1NN}
+Upon estimating the class signals $x_1,...,x_K$, we assign each observation $y_i$ to the class $k$ in the nearest-neighbour manner, i.e. $y_i$ and $x_k$ achieves the highest similarity.
+
+$$v_i = \argmax_{k=1,...,K}(\mathcal{S}(y_i,x_k))\hspace{.5cm} \text{for} \hspace{.2cm} i=1,...,N$$
+Besides recovering the mixing probabilities $w[k]$ directly from \ref{objective}, we can also calculate the mixing probabilities as the proportions of observations assigned to each class.
+Then,
+$$\Tilde{w}_{reasigned]}[k] = \frac{1}{N}\displaymode \sum^N_{i=1} \mathbbm{1}_{\{v_i=k\}} \hspace{.5cm} \text{for} \hspace{.2cm} k=1,...,K$$
+\subsection{Spectral Clustering}
+\label{sec:SPC}
+For the Spectral Clustering (SPC) method, we construct the similarity matrix with \ref{eqn：similarity} pairwisely for $\{X_i\}_{i=1}^N$. We make a simple modification to incorporate the assumption of the maximum lag between samples. Suppose $\max_{i,j \in \{1,...,N\}} |\mathcal{L}(X_i,X_j)| = \delta$ for some $\delta \in \mathbb{Z}^+_{\leq T}$, we define the $delta$-bounded lag similarity:
+\begin{equation}
+\label{eqn：similarity2}
+S^\delta_{ij} = \mathcal{S^{\delta}}(X_i,X_j) = \max_{|n|\leq\delta} Corr(X,Y)[n]
+\end{equation}
+\section{Experiments}
+In this section, we describe the model setup, data, and evaluation metrics of our experiments to investigate the potential benefits of MRA in lead-lag detection, and whether the improvements can translate into financial value.\\
+
+
+\subsection{Data Description}
+Both synthetic and financial data make use of Wharton's CRSP data set. We use the daily close-to-close simple returns series of 695 stocks traded in NYSE over 5279 trading days from 3 Jan 2000 to 31 Dec 2020, adjusted for splits and dividends. 
+$$ret_t = \frac{P_t-P_{t-1}}{P_{t-1}}$$
+
+\subsubsection{Synthetic Data}
+The main purpose of conducting experiments with synthetic data is to evaluate the accuracy of our clustering lead-lag prediction method. We can simulate synthetic data similar to financial time series with the knowledge of ground-truth clustering and lead-lag. 
+Details of constructing synthetic data are as follows:
+
+\begin{enumerate} 
+    \item Set the total number of observations $N$ and the number of classes $K$. 
+    \item Generate signals: randomly selected segments of simple returns series across the stock universe and time range $x_1,x_2,...,x_K$ of length $T$.
+    \item Generate observations: Uniformly select the mixing probabilities $[p_1,p_2,...,p_K]$ and generate $N_k = \lfloor{Np_k}$ sets of observations for signal $x_k$, denoted as $\{X^k_i\}_{i=1}^(N_k)$, for $k=1,...,K$.
+    \item Shift the observations: set the maximal shift $s_{max}$. For each class $k$ generate $s^k_1,...,s^k_{N_k}$ with uniform probability from $\{0,1,...,s_{max}\}$. Shift $X^k_i$ rightwards by $s^k_i$ timescales and fill the null positions with standard white noise. 
+    \item Add noise: Choose a noise level $\sigma$. Generate an iid Gaussian noise series of length $T$  and std $\sigma$. Add the noise series to the shifted observations. 
+\end{enumerate}
+We evaluate our methods over a range of $K$ and $\sigma$ values.
+\subsubsection{Financial Data}
+\textbf{Pre-processing}:
+\begin{itemize}
+    \item Remove 74 trading days with more than $10\%$ of null and zero values
+    \item Winsorize values with absolute values $>0.15$ to $\pm0.15$
+\end{itemize}
+\subsection{Model Setup}
+Our experiment pipeline consists of clustering the samples, lead-lag estimation within each class, and trading simulation. We compare the following 4 models:
+\begin{enumerate}
+    \item \textbf{S-Pairwise}: Perform Spectral Clustering \ref{sec:SPC} first, then estimate lead-lag based on pairwise cross-correlation \ref{sec:pair}.
+    
+    \item \textbf{S-Sync}: Perform Spectral Clustering \ref{sec:SPC} first, then estimate lead-lag with reference signal recovered with the SVD-NRS algorithm \ref{sec:sync},\ref{sec:rel_lag}.
+    
+    \item \textbf{S-IVFhomo}: Perform Spectral Clustering \ref{sec:SPC} first, then estimate lead-lag with reference signal recovered with the homogeneous IVF algorithm from each class of samples \ref{sec:IVF},\ref{sec:rel_lag}.
+    
+    \item \textbf{I-IVFhet}: Perform the heterogeneous IVF algorithm directly to recover multiple reference signals from samples. Assign samples to the nearest signal \ref{sec:IVF-1NN}, then estimate lead-lag with the corresponding reference signal \ref{sec:IVF}\ref{sec:rel_lag}.
+\end{enumerate}
+The trading strategy is designed to deploy the predictive power of leading stocks' returns on lagging stocks' returns. From the lead-lag estimations, we sort the stocks into groups of the same lead-lag, denoted $\mathcal{G}_0,..., \mathcal{G}_l$, where the subscript denotes the group's relative lag to the most leading group. Trading can be executed using any pair of leader-lagger groups of stocks. Suppose we trade $\mathcal{G}_b$ with signals from $\mathcal{G}_a, 0\leq a<b$, the signal on day $t$ is defined as the sign of the volatility-weighted average returns of the leader group:
+$$signal^t_{\mathcal{G}_a} = sign(\frac{1}{|\mathcal{G}_a|}\displaymode\sum_{i \in\mathcal{G}_a}\frac{ret^t_i}{vol^t_i})$$
+We long the $\mathcal{G}_b$ on day $t+b-a$ if the signal is positive, vice versa.
+The trading alpha is the average lagged returns of the lagger group, multiply by the direction of trading:
+$$alpha^{t+b-a}_{\mathcal{G}_b,\mathcal{G}_a} \frac{1}{|\mathcal{G}_b|}\displaymode\sum_{i \in\mathcal{G}_b}ret^{t+b-a}_i$$ 
+The Profit and Loss (PnL) generated per dollar invested from all available leader-lagger pairs on day $t$ is formulated as follows:
+\begin{equation}
+    PnL^t = \displaymode \sum_{\substack{0\leq a\leq\ b\leq l\\t-b+a\geq0}} alpha^{t}_{\mathcal{G}_b,\mathcal{G}_a} \frac{1}{|\mathcal{G}_b|}\displaymode\sum_{i \in\mathcal{G}_b}ret^{t+b-a}_i
+\end{equation}
+
+\section{Results}
+\section{Discussions}
+\section{Conclusions}
+
+
+
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section). This ensures the proper
+%% identification of the section in the article metadata, and the
+%% consistent spelling of the heading.
+\begin{acks}
+To Robert, for the bagels and explaining CMYK and color spaces.
+\end{acks}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bibliography}
+
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.
