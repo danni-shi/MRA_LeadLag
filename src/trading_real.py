@@ -98,7 +98,9 @@ def strategy_lag_groups(returns, trading_start, trading_end,
                 leader_weights = weights_by_inverse_vol(returns.iloc[leaders,:trading_start],
                                                         'std',
                                                         window_width=20)
-                lagger_weights = None
+                lagger_weights = weights_by_inverse_vol(returns.iloc[laggers,:trading_start],
+                                                        'std',
+                                                        window_width=20)
                 lag = l2 - l1
                 pnl, signal, pnl_leader = PnL_two_groups_real(sub_returns, leaders, laggers, lag,
                                                               watch_period, hold_period,
@@ -620,7 +622,7 @@ if __name__ == '__main__':
     data_path = '../data/pvCLCL_clean_winsorized.csv'
     df_returns = pd.read_csv(data_path, index_col=0)  # data
     prediction_path = '../results/real/full_non-negative_affinity'
-    PnL_folder_name = 'PnL_real_single_weighted'
+    PnL_folder_name = 'PnL_real_single_weighted_both'
     # range of K and sigma we run grid search on
     K_range = [1, 2, 3]
     sigma_range = np.arange(0.2, 2.1, 0.2)
