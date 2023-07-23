@@ -153,10 +153,9 @@ def PnL_two_groups(returns, leaders, laggers, lag, watch_period=1, hold_period=1
         return portfolio_returns, portfolio_signals
 
 
-def strategy_lag_groups(returns, trading_start, trading_end,
-                        days_advanced, lag_vector, lags,
-                        watch_period=1, hold_period=1,
-                        hedge=False):
+def strategy_lag_groups_synth(returns, lag_vector, lags,
+                        watch_period=1, hold_period=1
+                        ):
     """
     trading strategy to work on different lead-lag group pairs in the same class
 
@@ -166,12 +165,11 @@ def strategy_lag_groups(returns, trading_start, trading_end,
     # including returns from dates before trading takes place to construct trading signals
     # pi, r, _ = alignment.SVD_NRS(lag_matrix)
     # lag_vector = np.array(np.round(r), dtype=int)
-    sub_returns = returns.iloc[:, trading_start - days_advanced:trading_end]
     PnL = {}
     signals = {}
     PnL_excess = {}
 
-    sub_returns = np.array(sub_returns)
+    sub_returns = np.array(returns)
     for l1 in lags:
         for l2 in lags:
             if l1 < l2:
@@ -179,8 +177,8 @@ def strategy_lag_groups(returns, trading_start, trading_end,
                 laggers = np.where(lag_vector == l2)[0]
                 lag = l2 - l1
                 pnl, signal = PnL_two_groups(sub_returns, leaders, laggers, lag, watch_period, hold_period)
-                PnL[f'{l1}->{l2}'] = pnl[days_advanced:]
-                signals[f'{l1}->{l2}'] = signal[days_advanced:]
+                PnL[f'{l1}->{l2}'] = pnl
+                signals[f'{l1}->{l2}'] = signal
     # calculate the simple average of PnL of each group pair
     PnL['class average'] = np.nanmean(np.stack(list(PnL.values())), axis=0)
     # PnL_excess['class average'] = np.nanmean(np.stack(list(PnL_excess.values())), axis=0)
@@ -349,10 +347,10 @@ def strategy_plain(returns, lag_matrix, shifts, watch_period=1, hold_period=1, l
     return result, signs
 
 
-def strategy_het(returns, trading_start, trading_end,
-                 lag_matrix, classes, watch_period=1,
+def strategy_het(returns,
+                 lag_vec, classes, watch_period=1,
                  hold_period=1, class_threshold=None,
-                 assumed_max_lag=5, market_excess=False,
+                 assumed_max_lag=5
                  ):
     """
     returns: NxT np array. N is the number of instruments and T is the number of time points
@@ -371,28 +369,30 @@ def strategy_het(returns, trading_start, trading_end,
         # count number of samples in class c
         count = np.count_nonzero(classes == c)
         if count > class_threshold:  # ignore classes with size below a certain threshold
-            sub_lag_matrix = lag_matrix[classes == c][:, classes == c]
-            min_group_size = 0.3 * int(len(sub_lag_matrix) / assumed_max_lag)
-            lag_vector = lag_mat_to_vec(sub_lag_matrix)
+            # sub_lag_matrix = lag_matrix[classes == c][:, classes == c]
+            # min_group_size = 0.3 * int(len(sub_lag_matrix) / assumed_max_lag)
+            # lag_vector = lag_mat_to_vec(sub_lag_matrix)
             # pi, r, _ = alignment.SVD_NRS(lag_matrix)
             # lag_vector = np.array(np.round(r), dtype=int)
-            lags, counts = np.unique(lag_vector, return_counts=True)
+            sub_lag_vector = lag_vec[classes == c]
+            lags, counts = np.unique(sub_lag_vector, return_counts=True)
+            min_group_size = 0.1 * int(len(sub_lag_vector) / assumed_max_lag + 1)
             lags = lags[counts >= min_group_size]
 
             if len(lags) > 1:
                 min_lag = np.min(lags)
                 lags -= min_lag
-                lag_vector -= min_lag
+                sub_lag_vector -= min_lag
                 days_advanced = 0
                 sub_returns = np.array(returns)[classes == c]
 
-                results = strategy_lag_groups(
-                    sub_returns, trading_start, trading_end,
-                    days_advanced, lag_vector, lags,
-                    watch_period, hold_period, min_group_size)
+                results = strategy_lag_groups_synth(
+                    sub_returns,
+                    sub_lag_vector, lags,
+                    watch_period, hold_period)
 
                 results_dict[f'class {c}'] = results
-                class_counts.append(sub_returns.shape[1])
+                class_counts.append(count)
 
     # average PnL of each group across all classes, if any valid results are produced
     if len(results_dict) > 0:
@@ -411,14 +411,13 @@ def strategy_het(returns, trading_start, trading_end,
     return results_dict
 
 
-def run_trading(data_path, K_range, sigma_range, max_shift=2, round=1, out_of_sample=True, **trading_kwargs):
+def run_trading(data_path, prediction_path, K_range, sigma_range, max_shift=2, round=1, out_of_sample=True, **trading_kwargs):
     trading = {f'K={k}': {f'sigma={sigma:.2g}': {} for sigma in sigma_range} for k in K_range}
 
-    with open(f'../results/signal_estimates/{round}.pkl', 'rb') as f:
+    with open(prediction_path + f'/signal_estimates/{round}.pkl', 'rb') as f:
         estimates = pickle.load(f)
-    with open(f'../results/lag_matrices/{round}.pkl', 'rb') as f:
-        lag_matrices = pickle.load(f)
-    n = 10
+    with open(prediction_path + f'/lag_vectors/{round}.pkl', 'rb') as f:
+        lag_vectors = pickle.load(f)
     for k in K_range:
         for sigma in sigma_range:
             observations_path = data_path + '_'.join(['observations',
@@ -434,28 +433,31 @@ def run_trading(data_path, K_range, sigma_range, max_shift=2, round=1, out_of_sa
             observations = observations_mat['data_' + dataset]
             shifts = observations_mat['shifts'].flatten()
             index = observations_mat['index_' + dataset].flatten()
-            lag_mat_dict = lag_matrices[f'K={k}'][f'sigma={sigma:.2g}']
+            lag_vec_dict = lag_vectors[f'K={k}'][f'sigma={sigma:.2g}']
             classes_spc = estimates[f'K={k}'][f'sigma={sigma:.2g}']['classes']['spc']
             classes_est = estimates[f'K={k}'][f'sigma={sigma:.2g}']['classes']['het']
 
-            for model, lag_mat in lag_mat_dict.items():
+            for model, lag_vec in lag_vec_dict.items():
                 if model == 'het':
                     classes = classes_est
                 else:
                     classes = classes_spc
-                trading[f'K={k}'][f'sigma={sigma:.2g}'][model] = strategy_het(observations.T, lag_mat,
-                                                                              classes, shifts=shifts,
+                trading[f'K={k}'][f'sigma={sigma:.2g}'][model] = strategy_het(observations.T, lag_vec['row mean'],
+                                                                              classes,
                                                                               **trading_kwargs)
 
-    with open(f'../results/PnL/{round}.pkl', 'wb') as f:
+    with open(prediction_path + f'/PnL/{round}.pkl', 'wb') as f:
         pickle.dump(trading, f)
 
 
 def run_wrapper(round):
-    data_path = '../../data/data500_shift2_pvCLCL_init2_set1/' + str(round) + '/'
-    K_range = [2]
-    sigma_range = np.arange(0.5, 2.1, 0.5)
-    run_trading(data_path=data_path, K_range=K_range,
+    prediction_path = '../results/synthetic/2023-07-19-10h07min_10rounds'
+    data_path = '../data/data500_shift2_pvCLCL_init2_set1/' + str(round) + '/'
+    K_range = [1,3]
+    sigma_range = np.arange(1.0, 2.1, 0.5)
+    run_trading(data_path=data_path,
+                prediction_path=prediction_path,
+                K_range=K_range,
                 sigma_range=sigma_range, round=round,
                 out_of_sample=True)
 
@@ -515,7 +517,7 @@ def concat_PnL_real(K, sigma, model,
 if __name__ == '__main__':
     warnings.filterwarnings(action='ignore', message='Mean of empty slice')
     # for testing run without parallelization
-    real_data = True
+    real_data = False
     if real_data:
         data_path = '../../data/pvCLCL_clean.csv'
         K_range = [1, 2, 3]
@@ -555,7 +557,7 @@ if __name__ == '__main__':
         with open('../results/PnL_real_excess/' + file_name + '.pkl', 'wb') as f:
             pickle.dump(PnL_concat_dict, f)
     else:
-        rounds = 4
+        rounds = 10
         start = time.time()
         for i in range(rounds):
             run_wrapper(round=i + 1)

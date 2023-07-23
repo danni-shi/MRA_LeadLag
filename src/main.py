@@ -111,7 +111,7 @@ def eval_models(lag_matrix, shifts=None, assumed_max_lag=5, \
 
     if 'spc-homo' in models:
         # SPC + homogeneous optimization
-        # X_est_spc_homo = alignment.latent_signal_homo(observations, classes_spc, sigma)
+        X_est_spc_homo = alignment.latent_signal_homo(observations, classes_spc, sigma)
         lag_mat_spc_homo = alignment.get_lag_matrix_het(observations, classes_spc, X_est_spc_homo, assumed_max_lag)
         signal_dict['spc-homo'] = X_est_spc_homo
         lag_mat_dict['spc-homo'] = lag_mat_spc_homo
@@ -244,7 +244,9 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
         max_shift=0.04, assumed_max_lag=5,
         models=None, data_path='please check data_path',
         save_path='../results/synthetic',
-        return_signals=False, return_lag_mat=False,
+        return_signals=False,
+        return_lag_vec=True,
+        return_lag_mat=False,
         return_PnL=False, round=1):
     # default values
     if models is None:
@@ -272,6 +274,7 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
     estimates = {}
     PnL = {}
     lag_matrices = {}
+    lag_vectors = {}
     with tqdm(total=len(K_range) * len(sigma_range)) as pbar:
         for k in tqdm(K_range):
             performance[f'K={k}'] = {'ARI': {'spc': [],
@@ -282,6 +285,7 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
             estimates[f'K={k}'] = {}
             lag_matrices[f'K={k}'] = {}
             PnL[f'K={k}'] = {}
+            lag_vectors[f'K={k}'] = {}
 
             for sigma in sigma_range:
 
@@ -315,6 +319,7 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
                                       X_est=X_est,
                                       sigma=sigma,
                                       return_signals=True,
+                                      return_lag_vec=return_lag_vec,
                                       return_lag_mat=return_lag_mat,
                                       return_PnL=return_PnL
                                       )
@@ -348,6 +353,9 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
                     estimates[f'K={k}'][f'sigma={sigma:.2g}'] = signal_class_prob
 
                 # store the  lag matrices predicted by the models
+                if return_lag_vec:
+                    lag_vec_dict = results['lag vec']
+                    lag_vectors[f'K={k}'][f'sigma={sigma:.2g}'] = lag_vec_dict
                 if return_lag_mat:
                     lag_mat_dict = results['lag mat']
                     lag_matrices[f'K={k}'][f'sigma={sigma:.2g}'] = lag_mat_dict
@@ -357,7 +365,7 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
                 pbar.update(1)
 
     # save the results to folder
-    for subfolder in ['performance', 'signal_estimates', 'lag_matrices', 'PnL']:
+    for subfolder in ['performance', 'signal_estimates', 'lag_matrices', 'PnL', 'lag_vectors']:
         utils.create_folder_if_not_existed(f'{save_path}/{subfolder}')
 
     with open(f'{save_path}/performance/{round}.pkl', 'wb') as f:
@@ -372,6 +380,9 @@ def run(sigma_range=np.arange(0.1, 2.1, 0.1), K_range=None,
     if return_PnL:
         with open(f'{save_path}/PnL/{round}.pkl', 'wb') as f:
             pickle.dump(PnL, f)
+    if return_lag_vec:
+        with open(f'{save_path}/lag_vectors/{round}.pkl', 'wb') as f:
+            pickle.dump(lag_vectors, f)
 
 
 def read_realdata_results(data_path, sigma, k):
@@ -572,14 +583,14 @@ def run_real_data(sigma_range=np.arange(0.2, 2.1, 0.2), K_range=[1,2,3],
 def run_wrapper(inputs):
     round, save_path = inputs
     # K_range = [2, 3, 4]
-    sigma_range = np.arange(0.1, 2.1, 0.1)
-    K_range = [1,2,3]
+    sigma_range = np.arange(1.0, 2.1, 0.5)
+    K_range = [1,3]
     max_shift = 2
     data_path = '../data/data500_shift2_pvCLCL_init2_set1/'
     run(sigma_range=sigma_range, K_range=K_range,
         max_shift=max_shift,data_path=data_path,
         save_path=save_path,
-        test=False, return_lag_mat=False,
+        test=False, return_lag_vec=True,
         return_signals=True, round=round)
 
 
@@ -667,7 +678,7 @@ if __name__ == "__main__":
         # remember to untick 'Run with Python console' in config
         rounds = args.num_rounds
         round_range = range(1, 1 + rounds)
-
+        # run_wrapper((1,save_path))
         start_time = time.time()
         if parallelize:
             inputs = list(zip(round_range, repeat(save_path)))

@@ -979,4 +979,93 @@ File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 7.0pt on inpu
+(Font)              scaled to size 7.0pt on input line 237.
+LaTeX Font Info:    Trying to load font information for TS1+LinuxLibertineT-TLF
+ on input line 237.
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/libertine/TS1LinuxLibertineT-TLF.
+fd
+File: TS1LinuxLibertineT-TLF.fd 2017/03/20 (autoinst) Font definitions for TS1/
+LinuxLibertineT-TLF.
+)
+LaTeX Font Info:    Font shape `TS1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 7.0pt on input line 237.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `LinuxLibertineT-TLF' (encoding: TS1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 9.0pt on input line 237.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 10.95pt on input line 237.
+LaTeX Font Info:    Font shape `TS1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 9.0pt on input line 237.
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 9.0pt on input line 237.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
+(Font)              scaled to size 9.0pt on input line 237.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 8.0pt on input line 237.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 8.0pt on input line 237.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
+(Font)              scaled to size 8.0pt on input line 237.
+
+
+LaTeX Warning: Reference `TotPages' on page 1 undefined on input line 237.
+
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 8.0pt on input line 237.
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 6.2pt on input line 237.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 7.3pt on input line 249.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 5.5pt on input line 249.
+LaTeX Font Info:    Trying to load font information for U+eus on input line 250
+.
+(/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/ueus.fd
+File: ueus.fd 2013/01/14 v3.01 Euler Script
+)
+(/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-eus.cfg
+File: mt-eus.cfg 2006/07/28 v1.2 microtype config. file: AMS Euler Script (RS)
+)
+
+Package natbib Warning: Citation `synchronization_SVD' on page 1 undefined on i
+nput line 253.
+
+
+Overfull \hbox (11.99614pt too wide) in paragraph at lines 253--254
+\T1/LinuxLibertineT-TLF/m/n/9 (-20) shifts (refs here). The re-cov-ered vec-tor
+ can be seen as a low-dimensional
+ []
+
+
+LaTeX Warning: Reference `LastPage' on page 1 undefined on input line 254.
+
+[1.1{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+
+]
+
+Package natbib Warning: Citation `Boumal2017Oct' on page 2 undefined on input l
+ine 255.
+
+./main.tex:288: Undefined control sequence.
+l.288 $$\Tilde{x} = \frac{1}{N}\displaymode
+                                           \sum_{i=1}^N R_{-r_i}y_i$$
+? 
+./main.tex:288: Emergency stop.
+l.288 $$\Tilde{x} = \frac{1}{N}\displaymode
+                                           \sum_{i=1}^N R_{-r_i}y_i$$
+End of file on the terminal!
+
+ 
+Here is how much of TeX's memory you used:
+ 19358 strings out of 480608
+ 293019 string characters out of 5903631
+ 599995 words of memory out of 5000000
+ 34513 multiletter control sequences out of 15000+600000
+ 663933 words of font info for 216 fonts, out of 8000000 for 9000
+ 1302 hyphenation exceptions out of 8191
+ 63i,11n,100p,1182b,453s stack positions out of 5000i,500n,10000p,200000b,80000s
+./main.tex:288:  ==> Fatal error occurred, no output PDF file produced!

@@ -574,8 +574,9 @@ def save_to_folder(directory, folder_name):
 
     print('Recording results in directory: ' + directory, date_string + '_' + folder_name)
     str_write_dir = os.path.join(directory + '/', date_string + '_' + folder_name)
-    os.makedirs(str_write_dir)
-    
+    # os.makedirs(str_write_dir)
+    create_folder_if_not_existed(str_write_dir)
+
     return str_write_dir
 def create_folder_if_not_existed(folder_path):
     # Check if the folder exists

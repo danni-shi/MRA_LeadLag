@@ -3,7 +3,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import utils
-# from optimization import optimise_matlab
+from optimization import optimise_matlab
 import pickle
 import time
 from tqdm import tqdm

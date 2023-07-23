@@ -2,7 +2,7 @@ clear all; %#ok<CLALL>
 close all;
 clc;
 
-rng(42);
+rng(0);
 save_data = true;
 
 %% Problem setup
@@ -12,7 +12,7 @@ signal = 'pvCLCL';
 max_shift = 2; % shift set to -1 to enable cyclic shifts
 nextrainits = 2;
 train_ratio = 0.5;
-num_rounds = 4;
+num_rounds = 2;
 sigma_scale = 1;
 % K = 3;  % number of different signals to estimate (heterogeneity)
 % sigma = 0.5;
@@ -21,7 +21,7 @@ sigma_scale = 1;
 
 if save_data == true    
       % create folder to store the data
-    folder_name = sprintf('../data/data%i_shift%.3g_%s_init%i_set1',M,max_shift,signal,nextrainits);
+    folder_name = sprintf('../data/data%i_shift%.3g_%s_init%i_set3',M,max_shift,signal,nextrainits);
     if ~exist(folder_name, 'dir')
 %         rmdir(folder_name,'s');
         mkdir(folder_name);
@@ -37,7 +37,7 @@ for round = 1:num_rounds
        mkdir(subfolder_name);
     end
 
-    for K = 2:2
+    for K = 1:3
         % generate observations at different noise level for the same
         % latent signal of shape LxK
         [x_true, SPY] = generate_signal(K,L,signal);

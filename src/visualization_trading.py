@@ -19,6 +19,15 @@ with open(f'../results/real/{prediction_folder}/PnL_real_single_weighted/' + fil
           'rb') as f:
     PnL_SR = pickle.load(f)
 
+
+def SR_by_year():
+    first_day_cols = []
+    for col_number, index_value in enumerate(df_pvCLCL.columns):
+        if index_value.year != df_pvCLCL.columns[col_number - 1].year:
+            first_day_cols.append(col_number)
+    pd.DataFrame({'first day index': first_day_cols}, index=np.unique(df_pvCLCL.columns.year)).T
+
+
 K_range = [1, 2, 3]
 PnL_sigma_range = np.arange(0.2, 2.0, 0.4)
 PnL_sigma_range = [round(PnL_sigma_range[i], 1) for i in range(len(PnL_sigma_range))]
@@ -36,10 +45,15 @@ RT_map = {'raw returns': 'RR-Lag',
                    }
 
 # labels and formats
+
 labels = {'pairwise': 'S-Pairwise',
           'sync': 'S-Sync',
           'spc-homo': 'S-IVFhomo',
-          'het': 'I-IVFhet',}
+          'spc': 'SPC',
+          'het': 'I-IVFhet',
+          'het reassigned': 'IVF (regroup)',
+          'true': 'True'}
+
 color_labels = labels.keys()
 col_values = sns.color_palette('Set2')
 color_map = dict(zip(color_labels, col_values))
@@ -83,7 +97,7 @@ def plot_by_model():
                 plot_config = {'linestyle': 'dashed'}
             SR = returns_dict['annualized SR'][return_type]
             mean_PnL = np.mean(values)  # include the first few days when no trading occurs
-            ax.plot(np.arange(len(values)), cum_pnl, label=f'{RT_map[return_type]}: SR {SR:.2f}; PPD {1e2*mean_PnL:.4f}',
+            ax.plot(np.arange(len(values)), cum_pnl, label=f'{RT_map[return_type]}: SR {SR:.2f}; PnL {1e2*mean_PnL:.4f}',
                     **plot_config)
         ax.legend(loc='lower right')
         ax.grid(visible=True)
@@ -98,7 +112,7 @@ def plot_by_return_types():
             squeeze=True, sharey=True)
         ax.set_title(f'Cumulative {label} optimized over K range {list(K_range)} and \nsigma range {PnL_sigma_range}')
         ax.set_xlabel('Date')
-        ax.set_ylabel('PPD')
+        ax.set_ylabel('PnL')
         returns_dict = {metric: {model: PnL_SR[model][metric][return_type] \
                                  for model in models} \
                         for metric in ['PnL', 'annualized SR']}
@@ -110,7 +124,7 @@ def plot_by_return_types():
             SR = returns_dict['annualized SR'][model]
             mean_PnL = np.mean(values)  # include the first few days when no trading occurs
             ax.plot(trading_dates, cum_pnl,
-                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
+                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PnL {1e2 * mean_PnL:.4f}',
                     color=color_map[model])
             ax.legend(loc='lower right')
             ax.grid(visible=True)
@@ -125,7 +139,7 @@ def plot_MR_RR():
         ax = axes[i,0]
         ax.set_title(return_type)
         ax.set_xlabel('Date')
-        ax.set_ylabel('PPD')
+        ax.set_ylabel('PnL')
         returns_dict = {metric: {model: PnL_SR[model][metric][return_type] \
                                  for model in models} \
                         for metric in ['PnL', 'annualized SR']}
@@ -137,11 +151,11 @@ def plot_MR_RR():
             SR = returns_dict['annualized SR'][model]
             mean_PnL = np.mean(values)  # include the first few days when no trading occurs
             ax.plot(trading_dates, cum_pnl,
-                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PPD {1e2 * mean_PnL:.4f}',
+                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PnL {1e2 * mean_PnL:.4f}',
                     color=color_map[model])
             ax.legend(loc='lower right')
             ax.grid(visible=True)
-        plt.savefig(results_save_dir + f'/MR_RR.png')
+        plt.savefig(results_save_dir + f'/MR_RR_v0.png')
 
 # change folder name accroding to experiment specications
 # folder_name = f'{prediction_folder}/trading_OS_PnL_length50_retrain10_centred_optimized'
