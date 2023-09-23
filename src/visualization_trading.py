@@ -19,13 +19,14 @@ with open(f'../results/real/{prediction_folder}/PnL_real_single_weighted/' + fil
           'rb') as f:
     PnL_SR = pickle.load(f)
 
-
-def SR_by_year():
-    first_day_cols = []
-    for col_number, index_value in enumerate(df_pvCLCL.columns):
-        if index_value.year != df_pvCLCL.columns[col_number - 1].year:
-            first_day_cols.append(col_number)
-    pd.DataFrame({'first day index': first_day_cols}, index=np.unique(df_pvCLCL.columns.year)).T
+def annualized_sharpe_ratio(returns):
+    return np.mean(returns) / np.std(returns) * np.sqrt(252)
+# def SR_by_year():
+#     first_day_cols = []
+#     for col_number, index_value in enumerate(df_pvCLCL.columns):
+#         if index_value.year != df_pvCLCL.columns[col_number - 1].year:
+#             first_day_cols.append(col_number)
+#     pd.DataFrame({'first day index': first_day_cols}, index=np.unique(df_pvCLCL.columns.year)).T
 
 
 K_range = [1, 2, 3]
@@ -33,7 +34,8 @@ PnL_sigma_range = np.arange(0.2, 2.0, 0.4)
 PnL_sigma_range = [round(PnL_sigma_range[i], 1) for i in range(len(PnL_sigma_range))]
 models = ['pairwise', 'sync', 'spc-homo', 'het']
 # dates
-trading_dates = pd.read_csv('../data/pvCLCL_clean_winsorized.csv',index_col=0).columns
+df_pvCLCL= pd.read_csv('../data/pvCLCL_clean_winsorized.csv',index_col=0)
+trading_dates = df_pvCLCL.columns
 trading_dates = list(map(lambda x: dt.datetime.strptime(x,'X%Y%m%d'), trading_dates))
 trading_dates = trading_dates[start+signal_length:end-1+signal_length+retrain_period]
 # map return types to labels on plots
@@ -157,10 +159,70 @@ def plot_MR_RR():
             ax.grid(visible=True)
         plt.savefig(results_save_dir + f'/MR_RR_v0.png')
 
+def plot_MR_MR():
+    fig, axes = plt.subplots(
+        2,1,
+        figsize=(10, 10),
+        squeeze=False, sharey=True)
+    for i, return_type in enumerate(['raw returns', 'mkt excess returns']):
+        ax = axes[i,0]
+        ax.set_title(return_type)
+        ax.set_xlabel('Date')
+        ax.set_ylabel('PnL')
+        returns_dict = {metric: {model: PnL_SR[model][metric][return_type] \
+                                 for model in models} \
+                        for metric in ['PnL', 'annualized SR']}
+
+        for model, values in returns_dict['PnL'].items():
+            # cumsum evaluate the returns of a portfolio of a constant volume
+            values[np.isnan(values)] = 0
+            if return_type == 'raw returns':
+                values -= SPY_returns
+                ax.set_title('raw returns - SPY')
+            cum_pnl = np.cumsum(values)
+            SR = returns_dict['annualized SR'][model]
+            mean_PnL = np.mean(values)  # include the first few days when no trading occurs
+            ax.plot(trading_dates, cum_pnl,
+                    label=f'{labels[model]}: SR {SR:.2f}; Ave. PnL {1e2 * mean_PnL:.4f}',
+                    color=color_map[model])
+            ax.legend(loc='lower right')
+            ax.grid(visible=True)
+        plt.savefig(results_save_dir + f'/MR_MR.png')
+
+def plot_MR():
+    fig, ax = plt.subplots(1,figsize=(10,5))
+    return_type = 'mkt excess returns'
+    ax.set_title('Portfolio Returns')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('PnL')
+    returns_dict = {metric: {model: PnL_SR[model][metric][return_type] \
+                             for model in models} \
+                    for metric in ['PnL', 'annualized SR']}
+
+    for model, values in returns_dict['PnL'].items():
+        # cumsum evaluate the returns of a portfolio of a constant volume
+        values[np.isnan(values)] = 0
+        cum_pnl = np.cumsum(values)
+        SR = returns_dict['annualized SR'][model]
+        mean_PnL = np.mean(values)  # include the first few days when no trading occurs
+        ax.plot(trading_dates, cum_pnl,
+                label=f'{labels[model]}: SR {SR:.2f}; Ave. PnL {1e2 * mean_PnL:.4f}',
+                color=color_map[model])
+
+    SPY_returns = df_pvCLCL.loc['SPY', :][start + signal_length:end - 1 + signal_length + retrain_period]
+    SPY_returns[np.isnan(SPY_returns)] = 0
+    cum_SPY = np.cumsum(SPY_returns)
+    mean_SPY = np.mean(SPY_returns)
+    SR_SPY = annualized_sharpe_ratio(SPY_returns)
+    ax.plot(trading_dates, cum_SPY,
+            label=f'SPY: SR {SR_SPY:.2f}; Ave. PnL {1e2 * mean_SPY:.4f}')
+    ax.legend(loc='lower right')
+    ax.grid(visible=True)
+    plt.savefig(results_save_dir + f'/MR.png')
 # change folder name accroding to experiment specications
 # folder_name = f'{prediction_folder}/trading_OS_PnL_length50_retrain10_centred_optimized'
 # results_save_dir = utils.save_to_folder('../plots', folder_name)
-results_save_dir = '../plots/2023-07-13-18h27min_full_non-negative_affinity/trading_OS_PnL_length50_retrain10_centred_optimized'
+results_save_dir = '../plots/full_non-negative_affinity/trading_OS_PnL_length50_retrain10_centred_optimized'
 # plot_by_return_types()
-plot_MR_RR()
+plot_MR()
 
