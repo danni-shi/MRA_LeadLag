@@ -130,7 +130,8 @@ def alignment_similarity_linear(x1, x2, max_lag = None, normalised = True, retur
         # lag = len(x2) - (np.argmax(ccf[L-max_lag-1:L+max_lag])+ L-max_lag-1) - 1
         lag = max_lag - np.argmax(ccf[L-max_lag-1:L+max_lag])
         return np.max(ccf[L-max_lag-1:L+max_lag]), lag
-    else: return np.max(ccf[L-max_lag-1:L+max_lag])
+    else:
+        return np.max(ccf[L-max_lag-1:L+max_lag])
 
 # for n in [8,10,12]:
 #     x = np.random.normal(0,1,n)

@@ -87,7 +87,7 @@ def seconds_to_time(second, date = '2012-06-21'):
     return time
 
 
-def random_shift(x, num_copies, cyclic = True, max_shift = 0.1, seed = 42):
+def random_shift(x, num_copies, cyclic = True, max_shift = 0.1, pad = 'zero', seed = 42):
     """ create shifted copies of given signal
 
     Args:
@@ -110,8 +110,10 @@ def random_shift(x, num_copies, cyclic = True, max_shift = 0.1, seed = 42):
         k = shifts[i]
         y = np.roll(x,k)
         if not cyclic:
-            # y[:k] = np.random.normal(0, 1, size = k)
-            y[:k] = np.zeros(k)
+            if pad == 'zero':
+                y[:k] = np.zeros(k)
+            elif pad == 'random':
+                y[:k] = np.random.normal(0, 1, size=k)
         data[:,i] = y
     return data, shifts
 
