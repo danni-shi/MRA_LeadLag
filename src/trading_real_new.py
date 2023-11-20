@@ -457,7 +457,7 @@ if __name__ == '__main__':
         # Create the folder
         os.makedirs(folder_path)
     best_K_sigma_path = folder_path + 'best_k_sigma.csv'
-    # df_results.to_csv(best_K_sigma_path)
+    df_results.to_csv(best_K_sigma_path)
     # # path_old = '/Users/caribbeanbluetin/Desktop/Research/MRA_LeadLag/results/real/full_non-negative_affinity/PnL_real_single_weighted_both/'
     # # df_results1 = pd.read_csv(path_old+'best_k_sigma.csv',
     # #                           index_col=0)
