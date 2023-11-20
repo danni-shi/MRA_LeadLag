@@ -586,6 +586,7 @@ def create_folder_if_not_existed(folder_path):
         # Create the folder
         os.makedirs(folder_path)
 
+
 def hess_from_grad(grad):
     """return the hessian function as the jacobian of a gradient function from autograd. 
     

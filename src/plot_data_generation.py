@@ -4,24 +4,42 @@ from matplotlib import pyplot as plt
 import utils
 import random
 # import real data
-df_pvCLCL = pd.read_csv('../data/pvCLCL_clean_winsorized.csv', index_col=0)
+n = 10
+L = 200
+Xs = []
+x = np.zeros(L)
+x[:L//4] = np.sin(np.arange(L//4)*2*np.pi/(L//4))
+for i in range(n):
+    y = np.roll(x, shift=np.random.randint(0, L,1))
+    y = y + np.random.normal(0, 0.1, L)
+    Xs.append(y)
+fig, axes = plt.subplots(n, 1, figsize=(5, 20), dpi=300,layout='tight')
+for i in range(n):
+    ax = axes[i]
+    ax.plot(np.arange(L),Xs[i])
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+plt.savefig('../plots/signals/signal_generation/shifted_signals.pdf')
+
+# df_pvCLCL = pd.read_csv('../data/pvCLCL_clean_winsorized.csv', index_col=0)
 
  # select signals
-ind1, ind2 = 11, 22
-signal_length = 50
-start = 5
-signal1 = df_pvCLCL.iloc[ind1,start:start + signal_length]
-signal2 = df_pvCLCL.iloc[ind2,start:start + signal_length]
-
-
-fig, ax = plt.subplots(1, 1, figsize=(5, 3), dpi=300,layout='tight')
-ax.plot(np.arange(signal_length),signal1, label = 'X')
-ax.plot(np.arange(signal_length),np.roll(signal1, 5), label = 'Y')
-ax.axvline(22,linestyle='dashed',color='#1f77b4', alpha=0.7)
-ax.axvline(22+5,linestyle='dashed',color='#ff7f0e', alpha=0.7)
-ax.set_xlabel('Days')
-ax.legend()
-plt.savefig('../plots/signals/signal_generation/lag_signals')
+# ind1, ind2 = 11, 22
+# signal_length = 50
+# start = 5
+# signal1 = df_pvCLCL.iloc[ind1,start:start + signal_length]
+# signal2 = df_pvCLCL.iloc[ind2,start:start + signal_length]
+#
+#
+# fig, ax = plt.subplots(1, 1, figsize=(5, 3), dpi=300,layout='tight')
+# ax.plot(np.arange(signal_length),signal1, label = 'X')
+# ax.plot(np.arange(signal_length),np.roll(signal1, 5), label = 'Y')
+# ax.axvline(22,linestyle='dashed',color='#1f77b4', alpha=0.7)
+# ax.axvline(22+5,linestyle='dashed',color='#ff7f0e', alpha=0.7)
+# ax.set_xlabel('Days')
+# ax.legend()
+# plt.savefig('../plots/signals/signal_generation/lag_signals')
 #
 # fig, ax = plt.subplots(1, 1, figsize=(5, 3), dpi=300,layout='tight')
 # for i in range(5,11):
